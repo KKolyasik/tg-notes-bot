@@ -1,0 +1,125 @@
+# ----- ОС и редакторы -----
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+*.tmp
+*.orig
+*.rej
+
+# VSCode
+.vscode/
+# !.vscode/extensions.json
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+
+# JetBrains
+.idea/
+*.iml
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Виртуальные окружения
+.venv/
+venv*/
+env*/
+ENV*/
+
+# Тесты и покрытия
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+.pybuilder/
+.tox/
+.nox/
+.hypothesis/
+
+# Типизация/линтеры/аналитика
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+.pyright/
+
+# Сборки и дистрибутивы
+build/
+dist/
+wheels/
+sdist/
+*.egg-info/
+*.egg
+.eggs/
+MANIFEST
+
+# Кэш и прочее
+.cache/
+pip-wheel-metadata/
+pip-log.txt
+pip-delete-this-directory.txt
+.dmypy.json
+
+# Документация
+docs/_build/
+site/
+
+# ----- Конфиги/секреты -----
+.env
+.env.*
+!.env.example
+*.envrc
+.secrets/
+*.secret
+*.secrets
+secrets.*
+*.key
+*.pem
+*.crt
+*.cer
+*.der
+*.p12
+
+# pyenv (если не хотите фиксировать версию Python в репозитории)
+.python-version
+
+# Логи и временные файлы
+*.log
+log/
+logs/
+tmp/
+temp/
+*.pid
+
+# Базы данных и локальные файлы данных
+*.sqlite3
+*.db
+*.db-journal
+dump.rdb
+*.csv
+*.tsv
+*.parquet
+data/**
+!data/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ----- Дополнительно (если есть фронтенд) -----
+node_modules/
+npm-debug.log*
+yarn-error.log
+.pnpm-store/
+.pnp.*
+*.tsbuildinfo
+
+# Docker (локальные оверрайды)
+docker-compose.override.yml
