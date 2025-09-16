@@ -24,4 +24,13 @@ services:
       - "80:80"
     depends_on:
       - redis
-    
+  
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
