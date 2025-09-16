@@ -1,6 +1,6 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from app.constants import BTN_CREATE, BTN_LIST
+from bot.constants import BTN_CREATE, BTN_LIST
 
 
 def main_kb():

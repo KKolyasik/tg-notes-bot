@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str | None = None
     REDIS_DB: int = 0
 
+    BASE_WEBAPP_URL: str
+
     @property
     def redis_url(self) -> str:
         if self.REDIS_PASSWORD:

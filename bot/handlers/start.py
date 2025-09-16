@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-from app.keyboards.text_kbs import main_kb
+from bot.keyboards.text_kbs import main_kb
 
 router = Router(name="Стартовый роутер")
 

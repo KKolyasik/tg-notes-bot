@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User
-from app.repositories.base import CRUDBase
+from bot.models import User
+from bot.repositories.base import CRUDBase
 
 
 class CRUDUser(CRUDBase):

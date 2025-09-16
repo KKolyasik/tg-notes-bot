@@ -3,8 +3,8 @@ from typing import Awaitable, Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.fsm.context import FSMContext
 
-from app.repositories.users import user_crud
-from app.repositories.notes import note_crud
+from bot.repositories.users import user_crud
+from bot.repositories.notes import note_crud
 
 
 async def save_note_from_state(

@@ -3,10 +3,10 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, RedisEventIsolation
 from redis.asyncio import Redis
 
-from app.core.config import settings
-from app.handlers.notes.create import router as create_note_router
-from app.handlers.start import router as start_router
-from app.keyboards.menu import set_commands
+from bot.core.config import settings
+from bot.handlers.notes.create import router as create_note_router
+from bot.handlers.start import router as start_router
+from bot.keyboards.menu import set_commands
 
 
 async def main():
