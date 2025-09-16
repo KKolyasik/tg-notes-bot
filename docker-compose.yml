@@ -4,10 +4,10 @@ services:
   redis:
     image: redis:latest
     container_name: redis_container
-    env_file:
-      - .env
     ports:
       - "6379:6379"
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
       interval: 30s
@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile.picker
     env_file: .env
     ports:
-      - "80:80"
+      - "127.0.0.1:8000:8000"
     depends_on:
       - redis
   
@@ -30,7 +30,5 @@ services:
       context: .
       dockerfile: Dockerfile.bot
     env_file: .env
-    ports:
-      - "8080:8080"
     depends_on:
       - redis

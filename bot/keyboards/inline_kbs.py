@@ -24,7 +24,6 @@ def get_timesnap():
             InlineKeyboardButton(
                 text="⏳ Выбрать время",
                 web_app=WebAppInfo(url="https://timesnap.ru/picker"),
-                callback_data="timesnap",
             )
         ],
     ]

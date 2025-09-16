@@ -6,29 +6,29 @@
     <title>Выбор времени</title>
     <link rel="stylesheet" href="/static/picker.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- defer чтобы DOM уже был -->
+    <script src="/static/picker.js" defer></script>
   </head>
   <body>
     <div class="wrap">
       <h1>Выберите время</h1>
 
       <div class="chip-row">
-        <button class="chip" data-plus="15">+15 мин</button>
-        <button class="chip" data-plus="30">+30 мин</button>
-        <button class="chip" data-plus="60">+1 час</button>
-        <button class="chip" data-preset="tomorrow_9">Завтра 09:00</button>
+        <button class="chip" data-plus="15"  type="button">+15 мин</button>
+        <button class="chip" data-plus="30"  type="button">+30 мин</button>
+        <button class="chip" data-plus="60"  type="button">+1 час</button>
+        <button class="chip" data-preset="tomorrow_9" type="button">Завтра 09:00</button>
       </div>
 
       <label class="label">Дата и время</label>
-      <input id="dt" type="datetime-local" step="300" />
+      <input id="dt" type="datetime-local" step="300" autocomplete="off" />
 
       <p id="hint" class="hint"></p>
 
       <div class="actions">
-        <button id="cancel" class="btn ghost">Отмена</button>
-        <button id="submit" class="btn primary">Готово</button>
+        <button id="cancel" class="btn ghost"   type="button">Отмена</button>
+        <button id="submit" class="btn primary" type="button">Готово</button>
       </div>
     </div>
-
-    <script src="/static/picker.js"></script>
   </body>
 </html>

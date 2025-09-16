@@ -9,4 +9,4 @@ RUN poetry install --no-interaction --no-ansi --no-root
 
 COPY ./web_picker .
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

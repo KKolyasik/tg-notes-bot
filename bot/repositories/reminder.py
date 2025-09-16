@@ -3,6 +3,7 @@ from bot.models import Reminder
 
 
 class CRUDReminder(CRUDBase):
+
     pass
 
 

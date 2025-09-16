@@ -1,62 +1,61 @@
-(function () {
+document.addEventListener("DOMContentLoaded", () => {
   const tg = window.Telegram?.WebApp;
+
+  // ===== Telegram WebApp bootstrapping =====
   if (tg) {
     tg.expand();
+    tg.setHeaderColor?.("secondary_bg_color");
     if (tg.themeParams?.bg_color) document.body.style.backgroundColor = tg.themeParams.bg_color;
     if (tg.themeParams?.text_color) document.body.style.color = tg.themeParams.text_color;
-    if (tg.setHeaderColor) tg.setHeaderColor("secondary_bg_color");
-    if (tg.BackButton) {
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => tg.close());
-    }
+
+    tg.BackButton?.show();
+    tg.BackButton?.onClick(() => tg.close());
+
+    // Показать нативную кнопку и связать её с submit()
+    tg.MainButton.setText("Готово");
+    tg.MainButton.show();
+    tg.ready(); // сообщаем клиенту, что UI готов
   }
 
-  const input = document.getElementById("dt");
-  const hint = document.getElementById("hint");
+  // ===== DOM =====
+  const input     = document.getElementById("dt");
+  const hint      = document.getElementById("hint");
   const btnSubmit = document.getElementById("submit");
   const btnCancel = document.getElementById("cancel");
 
-  // округление вверх к шагу (5 минут)
+  // ===== helpers =====
   function roundUp(date, stepMin = 5) {
     const ms = date.getTime();
     const stepMs = stepMin * 60 * 1000;
     return new Date(Math.ceil(ms / stepMs) * stepMs);
   }
+  const pad = n => (n < 10 ? "0" + n : "" + n);
+  const toLocalInputValue = d =>
+    `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-  function pad(n) { return n < 10 ? "0" + n : "" + n; }
-
-  function toLocalInputValue(date) {
-    const y = date.getFullYear();
-    const m = pad(date.getMonth() + 1);
-    const d = pad(date.getDate());
-    const h = pad(date.getHours());
-    const min = pad(date.getMinutes());
-    return `${y}-${m}-${d}T${h}:${min}`;
+  function updateHint() {
+    if (!input.value) { hint.textContent = ""; return; }
+    const chosen = new Date(input.value); // локальное
+    const diffMs = chosen - new Date();
+    const mins = Math.round(diffMs / 60000);
+    if (mins < 0) {
+      hint.textContent = `⛔ В прошлом: ${Math.abs(mins)} мин назад`;
+      return;
+    }
+    const h = Math.floor(mins / 60), m = mins % 60;
+    hint.textContent = `Через ${h ? h + " ч " : ""}${m} мин`;
   }
 
   function setDefault() {
-    const now = new Date();
-    const def = roundUp(new Date(now.getTime() + 15 * 60 * 1000));
+    // ближайшие 15 минут
+    const def = roundUp(new Date(Date.now() + 15 * 60 * 1000));
     input.value = toLocalInputValue(def);
+    // min — чтобы нельзя было выбрать прошлое
+    input.min = toLocalInputValue(roundUp(new Date(Date.now() + 60 * 1000)));
     updateHint();
   }
 
-  function updateHint() {
-    const val = input.value;
-    if (!val) { hint.textContent = ""; return; }
-    const chosen = new Date(val);
-    const now = new Date();
-    const diffMs = chosen - now;
-    const mins = Math.round(diffMs / 60000);
-    if (mins < 0) {
-      hint.textContent = `⛔ В прошлом: ${Math.abs(mins)} мин назад`; return;
-    }
-    const hours = Math.floor(mins / 60);
-    const m = mins % 60;
-    hint.textContent = `Через ${hours ? hours + " ч " : ""}${m} мин`;
-  }
-
-  // Пресеты
+  // ===== пресеты (чипы) =====
   document.querySelectorAll(".chip").forEach((el) => {
     el.addEventListener("click", () => {
       const plus = el.dataset.plus;
@@ -76,6 +75,8 @@
     });
   });
 
+  // ===== события =====
+  input.addEventListener("input", updateHint);  // реагирует и на ввод с клавы, и на выбор из пикера
   input.addEventListener("change", updateHint);
 
   btnCancel.addEventListener("click", () => {
@@ -83,41 +84,49 @@
     else window.close();
   });
 
-  btnSubmit.addEventListener("click", () => {
-    const value = input.value; // локальное время без таймзоны
-    if (!value) {
+  const submit = () => {
+    if (!input.value) {
       hint.textContent = "Выберите дату и время";
       return;
     }
-    const chosenLocal = new Date(value);
-    const now = new Date();
-    // В прошлое нельзя
-    if (chosenLocal.getTime() <= now.getTime()) {
-      const adj = roundUp(new Date(now.getTime() + 60 * 1000));
+
+    const chosenLocal = new Date(input.value);
+    if (chosenLocal <= new Date()) {
+      const adj = roundUp(new Date(Date.now() + 60 * 1000));
       input.value = toLocalInputValue(adj);
       updateHint();
       return;
     }
 
-    // Собираем полезные поля
-    const iso = new Date(value).toISOString(); // UTC ISO
-    const tzOffsetMin = -new Date(value).getTimezoneOffset(); // для удобства (+180 для Europe/Helsinki летом)
-
+    // Готовим payload
+    const isoUtc = chosenLocal.toISOString(); // нормализуем в UTC
     const payload = {
-      iso_utc: iso,
-      unix: Math.floor(new Date(value).getTime() / 1000),
-      local: value,
-      tz_offset_min: tzOffsetMin,
+      iso_utc: isoUtc,
+      unix: Math.floor(chosenLocal.getTime() / 1000),
+      local: input.value, // строка datetime-local как есть
+      tz_offset_min: -chosenLocal.getTimezoneOffset(),
       step_min: 5,
     };
 
-    if (tg?.sendData) {
-      tg.sendData(JSON.stringify(payload));
-      // Telegram сам закроет WebApp после отправки
-    } else {
-      alert(JSON.stringify(payload, null, 2));
+    try {
+      if (tg?.sendData) {
+        tg.sendData(JSON.stringify(payload));
+        // на некоторых клиентах авто-закрытия нет — закроем явно
+        setTimeout(() => tg?.close?.(), 50);
+      } else {
+        alert(JSON.stringify(payload, null, 2));
+        window.close();
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Ошибка: " + e);
     }
-  });
+  };
+
+  // клики
+  btnSubmit.addEventListener("click", submit);
+  // нативная кнопка Telegram
+  tg?.MainButton?.onClick(submit);
 
   setDefault();
-})();
+});
