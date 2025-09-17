@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException, Header
 from web_picker.schemas.tma import SubmitPayload
 from web_picker.core.config import settings
@@ -27,20 +27,21 @@ async def submit(
             detail="invalid init_data signature",
         )
 
-    # Парсим время
     try:
-        when = datetime.fromisoformat(payload.iso_utc.replace("Z", "+00:00"))
+        local_str = payload.local
+        offset_min = payload.tz_offset_min
     except Exception:
-        raise HTTPException(status_code=400, detail="bad iso_utc")
+        raise HTTPException(status_code=400, detail="bad iso_utc format")
 
-    # Тут можно сохранить/запланировать реальную джобу напоминания (БД/очередь)
-    # ...
+    offset = timezone(timedelta(minutes=offset_min))
+    local_dt = datetime.fromisoformat(local_str).replace(tzinfo=offset)
+    iso_local = local_dt.isoformat(timespec="minutes")
 
     try:
         await answer_web_app_query(
             settings.BOT_TOKEN,
             payload.query_id,
-            when
+            iso_local,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"telegram error: {e}")

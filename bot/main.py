@@ -26,7 +26,7 @@ async def main():
         storage=storage,
         events_isolation=RedisEventIsolation(redis=redis),
     )
-    dp.include_router(debug_router)
+    dp.include_router(create_note_router)
 
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 

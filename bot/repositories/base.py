@@ -31,4 +31,5 @@ class CRUDBase:
         obj = self.model(**data)
         session.add(obj)
         await session.commit()
+        await session.refresh(obj)
         return obj

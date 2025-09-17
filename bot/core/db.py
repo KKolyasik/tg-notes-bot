@@ -11,4 +11,4 @@ Base = declarative_base()
 
 engine = create_async_engine(settings.DB_URL)
 
-SessionFactory = async_sessionmaker(engine)
+SessionFactory = async_sessionmaker(engine, expire_on_commit=False)

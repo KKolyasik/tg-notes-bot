@@ -14,13 +14,12 @@ async def answer_web_app_query(bot_token: str, query_id: str, iso_utc: str):
     }
 
     url = f"{TELEGRAM_API}/bot{bot_token}/answerWebAppQuery"
-    data = {
+    payload = {
         "web_app_query_id": query_id,
         "result": result_query,
     }
 
     async with httpx.AsyncClient(timeout=10) as client:
-        response = await client.post(url=url, data=data)
-        await client.request
+        response = await client.post(url=url, json=payload)
         response.raise_for_status()
         return response.json()

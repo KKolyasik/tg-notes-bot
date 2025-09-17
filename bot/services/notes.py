@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from bot.repositories.users import user_crud
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
+from bot.services.utils import parse_iso_aware
 
 
 async def save_note_from_state(
@@ -22,23 +23,17 @@ async def save_note_from_state(
     if not user:
         user = await user_crud.create_object({"tg_id": user_id}, session)
 
-    scheduled_at = data.get("remaind_at")
-    if scheduled_at is None:
-        await answer(
-            "Не удалось получить время напоминания, попробуйте ещё раз",
-        )
-        return
+    scheduled_at = parse_iso_aware(data.get("remaind_at"))
 
     note_payload = {
         "title": data.get("title", ""),
         "body": data.get("body", ""),
     }
-    note = await note_crud.create_object(note_payload, session, user)
+    note = await note_crud.create_object(note_payload, session)
 
     reminder_payload = {
         "note_id": note.id,
         "scheduled_at": scheduled_at,
-        "next_run_at": scheduled_at,
         "chat_id": chat_id,
         "status": "scheduled",
     }

@@ -1,4 +1,3 @@
-import json
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import (
@@ -25,7 +24,7 @@ async def testpicker(m: Message):
     await m.answer("Открываю пикер", reply_markup=kb)
 
 
-@router.message(F.web_app_data)
+@router.message()
 async def handle_webapp(m: Message):
-    data = json.loads(m.web_app_data.data)
+    data = m.text
     await m.answer(f"OK: {data}")
