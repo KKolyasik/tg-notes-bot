@@ -12,6 +12,4 @@ COPY ./migrations /app/migrations
 COPY ./alembic.ini /app/alembic.ini
 COPY ./bot /app/bot
 
-RUN alembic upgrade head
-
 CMD ["python", "-m", "bot.main"]
