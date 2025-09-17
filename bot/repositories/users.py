@@ -17,4 +17,4 @@ class CRUDUser(CRUDBase):
         return user.scalar_one_or_none()
 
 
-user_crud = CRUDUser(CRUDUser)
+user_crud = CRUDUser(User)

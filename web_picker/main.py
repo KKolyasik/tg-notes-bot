@@ -3,11 +3,16 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
+from web_picker.endpoints.healthcheck import router as healthcher_router
+from web_picker.endpoints.tma import router as tma_router
+
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 INDEX_FILE = STATIC_DIR / "picker.html"
 
 app = FastAPI()
+app.include_router(healthcher_router)
+app.include_router(tma_router)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 

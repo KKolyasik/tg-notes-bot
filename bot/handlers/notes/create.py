@@ -49,7 +49,6 @@ async def got_title(message: Message, state: FSMContext):
 async def create_note_withot_body(
     call: CallbackQuery,
     state: FSMContext,
-    session: AsyncSession,
 ):
     """Хэндлер на создание заметки без тела."""
     await state.update_data(body="")
@@ -59,17 +58,21 @@ async def create_note_withot_body(
 
 
 @router.message(F.text & ~F.text.startswith("/"), NewNote.body)
-async def got_body(message: Message, state: FSMContext, session: AsyncSession):
+async def got_body(message: Message, state: FSMContext):
     """Хэндлер на создание заметки с телом."""
     await state.update_data(body=message.text.strip())
     await message.answer("Теперь время", reply_markup=get_timesnap())
     await state.set_state(NewNote.remaind_at)
 
 
-@router.message(NewNote.remaind_at, F.web_app_data)
+@router.message(NewNote.remaind_at)
 async def handle_webapp_data(
     message: Message, state: FSMContext, session: AsyncSession
 ):
+    if not message.web_app_data:
+        await message.answer("Не удалось получить данные из мини-приложения")
+        return
+
     try:
         payload: dict = json.loads(message.web_app_data.data)
     except Exception:
@@ -79,11 +82,21 @@ async def handle_webapp_data(
     iso_utc = payload.get("iso_utc")
     if not iso_utc:
         await message.answer("В полученных данных нет времени")
+        return
 
-    notification_utc = datetime.fromisoformat(iso_utc)
+    try:
+        notification_utc = datetime.fromisoformat(
+            iso_utc.replace("Z", "+00:00"),
+        )
+    except ValueError:
+        await message.answer("Не удалось прочитать данные из виджета 😕")
+        return
 
     if not correct_time(notification_utc):
         await message.answer("Нельзя ставить напоминмание в прошлое")
+        return
+
+    await state.update_data(remaind_at=notification_utc)
 
     await save_note_from_state(
         state,

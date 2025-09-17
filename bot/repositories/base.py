@@ -23,7 +23,7 @@ class CRUDBase:
         self,
         data,
         session: AsyncSession,
-        user: Optional[User],
+        user: Optional[User] = None,
     ):
         """"Создание объекта в БД."""
         if user is not None:
