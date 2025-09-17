@@ -7,6 +7,9 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction --no-ansi --no-root
 
+
+COPY ./migrations /app/migrations
+COPY ./alembic.ini /app/alembic.ini
 COPY ./bot /app/bot
 
 RUN alembic upgrade head
