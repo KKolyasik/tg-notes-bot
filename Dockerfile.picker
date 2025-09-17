@@ -7,6 +7,6 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction --no-ansi --no-root
 
-COPY ./web_picker .
+COPY ./web_picker /app/web_picker
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "web_picker.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -21,7 +21,6 @@ async def submit(
     if not init_data:
         raise HTTPException(status_code=400, detail="init_data is required")
 
-    # ВАЛИДАЦИЯ initData (очень рекомендуется)
     if not validate_init_data(init_data, settings.BOT_TOKEN):
         raise HTTPException(
             status_code=403,
@@ -37,20 +36,11 @@ async def submit(
     # Тут можно сохранить/запланировать реальную джобу напоминания (БД/очередь)
     # ...
 
-    # Красивый текст сообщения в чат
-    text = f"🔔 Напоминание установлено на {when:%d.%m %H:%M} (UTC)"
-    if payload.local:
-        text += f"\n(локально: {payload.local})"
-    if payload.note_id:
-        text += f"\nЗаметка: #{payload.note_id}"
-
-    # Отрисовываем сообщение в чат, из которого открыли WebApp
     try:
         await answer_web_app_query(
-            bot_token=settings.BOT_TOKEN,
-            query_id=payload.query_id,
-            title="Напоминание создано",
-            message_text=text,
+            settings.BOT_TOKEN,
+            payload.query_id,
+            when
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"telegram error: {e}")

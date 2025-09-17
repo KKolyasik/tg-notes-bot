@@ -1,19 +1,20 @@
 import json
 from aiogram import Router, F
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import Command
 from aiogram.types import (
-    ReplyKeyboardMarkup,
-    KeyboardButton,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
     WebAppInfo,
     Message,
 )
 
 
-kb = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text="⏳ Выбрать время",
-                              web_app=WebAppInfo(url="https://timesnap.ru/picker"))]],
-    resize_keyboard=True, is_persistent=True,
-)
+kb = InlineKeyboardMarkup(inline_keyboard=[[
+    InlineKeyboardButton(
+        text="⏳ Выбрать время",
+        web_app=WebAppInfo(url="https://timesnap.ru/picker")
+    )
+]])
 
 
 router = Router()
