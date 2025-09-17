@@ -9,4 +9,6 @@ RUN poetry install --no-interaction --no-ansi --no-root
 
 COPY ./bot /app/bot
 
+RUN alembic upgrade head
+
 CMD ["python", "-m", "bot.main"]
