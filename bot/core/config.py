@@ -12,12 +12,11 @@ class Settings(BaseSettings):
 
     BASE_WEBAPP_URL: str
 
-    @property
-    def redis_url(self) -> str:
+    def redis_url(self, db: int = REDIS_DB) -> str:
         if self.REDIS_PASSWORD:
             return (
                 f"redis://:{self.REDIS_PASSWORD}@"
-                f"{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+                f"{self.REDIS_HOST}:{self.REDIS_PORT}/{db}"
             )
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 

@@ -46,6 +46,26 @@ services:
       - migrator
     volumes:
        - db-data:/data
+  
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    command: celery -A bot.celery.main.app beat -l INFO
+    depends_on:
+      - redis
+      - migrator
+  
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    command: celery -A bot.celery.main.app worker -l INFO -Q reminders,maintenance --concurrency=2
+    depends_on:
+      - redis
+      - migrator
 
 volumes:
   db-data:

@@ -56,14 +56,14 @@ class Reminder(Base):
         Enum(
             "scheduled",
             "sent",
-            "cancelled",
-            "failed",
+            "queued",
             name="reminder_status",
         ),
         server_default="scheduled",
         index=True,
         nullable=False,
     )
+    celery_task_id = Column(String, nullable=True)
     sent_at = Column(DateTime(timezone=True), nullable=True)
 
     created_at = Column(

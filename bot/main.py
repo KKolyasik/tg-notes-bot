@@ -8,25 +8,25 @@ from redis.asyncio import Redis
 from bot.core.config import settings
 from bot.handlers.notes.create import router as create_note_router
 from bot.handlers.start import router as start_router
-from bot.handlers.notes.test import router as debug_router
 
 
-async def main():
-    bot = Bot(
+bot = Bot(
         settings.BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
-    await bot.delete_webhook(drop_pending_updates=False)
 
-    redis = Redis.from_url(settings.redis_url)
+redis = Redis.from_url(settings.redis_url())
 
-    storage = RedisStorage(redis)
+storage = RedisStorage(redis)
 
-    dp = Dispatcher(
-        storage=storage,
-        events_isolation=RedisEventIsolation(redis=redis),
-    )
-    dp.include_router(create_note_router)
+dp = Dispatcher(
+    storage=storage,
+    events_isolation=RedisEventIsolation(redis=redis),
+)
+dp.include_router(create_note_router)
+
+
+async def main():
 
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
