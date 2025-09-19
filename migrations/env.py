@@ -14,7 +14,7 @@ from bot.core.base import Base
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", settings.DB_URL)
+config.set_main_option("sqlalchemy.url", settings.db_url_str)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

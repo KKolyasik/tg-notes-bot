@@ -9,6 +9,6 @@ from bot.core.config import settings
 
 Base = declarative_base()
 
-engine = create_async_engine(settings.DB_URL)
+engine = create_async_engine(settings.db_url)
 
 SessionFactory = async_sessionmaker(engine, expire_on_commit=False)

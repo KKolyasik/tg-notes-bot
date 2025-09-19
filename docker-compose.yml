@@ -1,15 +1,31 @@
-version: '3.9'
-
 services:
+
+  postgres:
+    image: postgres:16
+    container_name: pg_container
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   redis:
     image: redis:latest
     container_name: redis_container
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
     ports:
       - "6379:6379"
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -32,9 +48,8 @@ services:
     env_file: .env
     command: alembic upgrade head
     depends_on:
+      - postgres
       - redis
-    volumes:
-      - db-data:/data
   
   bot:
     build:
@@ -42,10 +57,9 @@ services:
       dockerfile: Dockerfile.bot
     env_file: .env
     depends_on:
+      - postgres
       - redis
       - migrator
-    volumes:
-       - db-data:/data
   
   celery_beat:
     build:
@@ -54,6 +68,7 @@ services:
     env_file: .env
     command: celery -A bot.celery.main.app beat -l INFO
     depends_on:
+      - postgres
       - redis
       - migrator
   
@@ -62,11 +77,12 @@ services:
       context: .
       dockerfile: Dockerfile.bot
     env_file: .env
-    command: celery -A bot.celery.main.app worker -l INFO -Q reminders,maintenance --concurrency=2
+    command: celery -A bot.celery.main.app worker -l INFO -P solo -Q reminders,maintenance --concurrency=4
     depends_on:
+      - postgres
       - redis
       - migrator
 
 volumes:
-  db-data:
+  pg-data:
   redis-data:
