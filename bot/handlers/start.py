@@ -9,7 +9,11 @@ router = Router(name="Стартовый роутер")
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
+    text = (
+        "<b><i><u>🙌 Хэй! Это «Planerka» 📅</u></i></b>\n"
+        "Здесь всё по плану: создавай заметки и получай напоминания вовремя 🚀"
+    )
     await message.answer(
-        "Запуск сообщения по команде /start используя фильтр CommandStart()",
+        text,
         reply_markup=main_kb(),
     )

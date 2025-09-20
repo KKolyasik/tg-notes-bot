@@ -1,5 +1,11 @@
 from datetime import datetime
 
+from aiogram import Bot
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+
+from bot.core.config import settings
+
 
 def parse_iso_aware(iso_time: str) -> datetime:
     """Парсит данные из iso формата в aware datetime."""
@@ -9,4 +15,9 @@ def parse_iso_aware(iso_time: str) -> datetime:
     return dt
 
 
-print(parse_iso_aware("2025-09-19T20:25+03:00"))
+def make_bot(token: str = settings.BOT_TOKEN) -> Bot:
+    """Создает экземпляр бота"""
+    return Bot(
+        token,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    )

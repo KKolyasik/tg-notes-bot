@@ -26,7 +26,11 @@ class NewNote(StatesGroup):
 @router.message(or_f(Command("new"), F.text == BTN_CREATE))
 async def new_note(message: Message, state: FSMContext):
     """Хэндлер на создание новой заметки."""
-    await message.answer("Введите заголовок заметки")
+    text = (
+        "<b><i><u>✍️ Заголовок заметки</b></i></u>/\n"
+        "📝 Введите заголовок для заметки — коротко и ясно!"
+    )
+    await message.answer(text)
     await state.set_state(NewNote.title)
 
 
@@ -35,8 +39,13 @@ async def got_title(message: Message, state: FSMContext):
     """Хэндлер на получение заголовка заметки."""
     await state.update_data(title=message.text.strip())
     await state.set_state(NewNote.body)
+    text = (
+        "<b><i><u>📓 Тело заметки</b></i></u>\n"
+        "📄 Теперь можешь добавить подробности"
+        "(или пропусти этот шаг, если заметка короткая)"
+    )
     await message.answer(
-        "Теперь текст заметки",
+        text,
         reply_markup=skip_body_note_kb(),
     )
 
@@ -49,7 +58,11 @@ async def create_note_withot_body(
     """Хэндлер на создание заметки без тела."""
     await state.update_data(body="")
     await call.answer("Далее")
-    await call.message.answer("Теперь время", reply_markup=get_timesnap())
+    text = (
+        "<b><i><u>📍 Время заметки</b></i></u>\n"
+        "⏰ Укажи время, когда напомнить тебе об этой заметке"
+    )
+    await call.message.answer(text, reply_markup=get_timesnap())
     await state.set_state(NewNote.remaind_at)
 
 
@@ -57,7 +70,16 @@ async def create_note_withot_body(
 async def got_body(message: Message, state: FSMContext):
     """Хэндлер на создание заметки с телом."""
     await state.update_data(body=message.text.strip())
-    await message.answer("Теперь время", reply_markup=get_timesnap())
+    text = (
+        "<b><i><u>📍 Время заметки</b></i></u>\n"
+        "⏰ Укажи время, когда напомнить тебе об этой заметке"
+    )
+    msg = await message.answer(text, reply_markup=get_timesnap())
+
+    await state.update_data(
+        picker_msg_id=msg.message_id,
+        picker_chat_id=msg.chat.id,
+    )
     await state.set_state(NewNote.remaind_at)
 
 
@@ -70,6 +92,5 @@ async def handle_webapp_data(
         state,
         session,
         message.from_user.id,
-        message.chat.id,
-        message.answer
+        message
     )

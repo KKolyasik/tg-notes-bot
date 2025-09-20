@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -9,6 +11,8 @@ from bot.core.config import settings
 from bot.handlers.notes.create import router as create_note_router
 from bot.handlers.start import router as start_router
 
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
 
 bot = Bot(
         settings.BOT_TOKEN,
@@ -24,6 +28,7 @@ dp = Dispatcher(
     events_isolation=RedisEventIsolation(redis=redis),
 )
 dp.include_router(create_note_router)
+dp.include_router(start_router)
 
 
 async def main():
