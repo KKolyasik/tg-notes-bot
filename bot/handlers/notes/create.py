@@ -27,7 +27,7 @@ class NewNote(StatesGroup):
 async def new_note(message: Message, state: FSMContext):
     """Хэндлер на создание новой заметки."""
     text = (
-        "<b><i><u>✍️ Заголовок заметки</b></i></u>/\n"
+        "<b><i><u>✍️ Заголовок заметки</u></i></b>/\n"
         "📝 Введите заголовок для заметки — коротко и ясно!"
     )
     await message.answer(text)
@@ -40,7 +40,7 @@ async def got_title(message: Message, state: FSMContext):
     await state.update_data(title=message.text.strip())
     await state.set_state(NewNote.body)
     text = (
-        "<b><i><u>📓 Тело заметки</b></i></u>\n"
+        "<b><i><u>📓 Тело заметки</u></i></b>\n"
         "📄 Теперь можешь добавить подробности"
         "(или пропусти этот шаг, если заметка короткая)"
     )
@@ -59,10 +59,14 @@ async def create_note_withot_body(
     await state.update_data(body="")
     await call.answer("Далее")
     text = (
-        "<b><i><u>📍 Время заметки</b></i></u>\n"
+        "<b><i><u>📍 Время заметки</u></i></b>\n"
         "⏰ Укажи время, когда напомнить тебе об этой заметке"
     )
-    await call.message.answer(text, reply_markup=get_timesnap())
+    msg = await call.message.answer(text, reply_markup=get_timesnap())
+    await state.update_data(
+        picker_msg_id=msg.message_id,
+        picker_chat_id=msg.chat.id,
+    )
     await state.set_state(NewNote.remaind_at)
 
 
@@ -71,7 +75,7 @@ async def got_body(message: Message, state: FSMContext):
     """Хэндлер на создание заметки с телом."""
     await state.update_data(body=message.text.strip())
     text = (
-        "<b><i><u>📍 Время заметки</b></i></u>\n"
+        "<b><i><u>📍 Время заметки</u></i></b>\n"
         "⏰ Укажи время, когда напомнить тебе об этой заметке"
     )
     msg = await message.answer(text, reply_markup=get_timesnap())

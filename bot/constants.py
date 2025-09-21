@@ -1,3 +1,6 @@
+from pathlib import Path
+
+
 BTN_CREATE = "✅ Создать новую заметку"
 BTN_LIST = "📋 Список заметок"
 TIME_TO_SCHEDULE = 1 * 60
@@ -14,3 +17,5 @@ ISO_REGEX = (
     r"(?P<tz>Z|[+-](?:0\d|1[0-4]):[0-5]\d)"  # Часовой пояс (Z или ±HH:MM)
     r"$"
 )
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"

@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, FSInputFile
 from aiogram.exceptions import TelegramBadRequest
 
-from bot.main import STATIC_DIR
+from bot.constants import STATIC_DIR
 from bot.repositories.users import user_crud
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
