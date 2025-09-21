@@ -2,8 +2,10 @@
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
     <title>Выбор времени</title>
+
     <link rel="stylesheet" href="/static/picker.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="/static/picker.js" defer></script>
@@ -20,7 +22,8 @@
       </div>
 
       <label class="label">Дата и время</label>
-      <input id="dt" type="datetime-local" step="300" autocomplete="off" />
+      <input id="dt" type="datetime-local" step="300" autocomplete="off"
+             autocorrect="off" autocapitalize="off" spellcheck="false" />
 
       <p id="hint" class="hint"></p>
 

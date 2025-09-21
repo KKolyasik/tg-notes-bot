@@ -40,7 +40,7 @@ async def get_list_notes(message: Message, session: AsyncSession):
 
 @router.callback_query(NotesPaginate.filter())
 async def paginate_notes(
-    cb: CallbackQuery,
+    callback: CallbackQuery,
     callback_data: NotesPaginate,
     session: AsyncSession,
 ):
@@ -48,12 +48,12 @@ async def paginate_notes(
     offset = max(int(callback_data.offset), 0)
     notes, total = await get_user_notes(
         session,
-        cb.message,
+        callback.message,
         limit=LIMIT_NOTES,
         offset=offset,
     )
 
-    await cb.message.edit_reply_markup(
+    await callback.message.edit_reply_markup(
         reply_markup=get_notes_kb(
             notes,
             limit=LIMIT_NOTES,
@@ -61,4 +61,4 @@ async def paginate_notes(
             total=total,
         )
     )
-    await cb.answer()
+    await callback.answer()

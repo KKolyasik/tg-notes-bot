@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.orm import selectinload
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, FSInputFile
@@ -85,15 +85,23 @@ async def get_user_notes(
             session,
         )
     total = await session.scalar(
-        select(func.count(Reminder.id)).where(Reminder.user_id == user.id)
+        select(func.count(Reminder.id))
+        .where(Reminder.user_id == user.id)
+        .where(
+            or_(
+                Reminder.status == "scheduled",
+                Reminder.status == "queued"
+            )
+        )
     )
     total = int(total or 0)
     reminders = await reminder_crud.get_objects(
         session=session,
-        filters={"user_id": user.id, "status": "scheduled"},
+        filters={"user_id": user.id, "status": ("scheduled", "queued")},
         options=[selectinload(Reminder.note)],
         limit=limit,
         offset=offset,
+        order_by=Reminder.id.desc()
     )
     notes = [reminder.note for reminder in reminders]
     return notes, total
