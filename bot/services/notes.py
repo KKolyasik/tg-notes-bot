@@ -1,13 +1,17 @@
+from typing import Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, FSInputFile
 from aiogram.exceptions import TelegramBadRequest
 
-from bot.constants import STATIC_DIR
+from bot.constants import STATIC_DIR, LIMIT_NOTES
 from bot.repositories.users import user_crud
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
 from bot.services.utils import parse_iso_aware
+from bot.models import Note, Reminder
 
 
 async def save_note_from_state(
@@ -55,10 +59,7 @@ async def save_note_from_state(
         await message.bot.send_photo(
             chat_id=chat_id,
             photo=photo,
-            caption=(
-                "✅ Заметка сохранена\n"
-                f"Время напоминания: {time}"
-            ),
+            caption=("✅ Заметка сохранена\n" f"Время напоминания: {time}"),
         )
     except TelegramBadRequest:
         await message.answer("✅ Заметка сохранена")
@@ -69,3 +70,30 @@ async def save_note_from_state(
         pass
 
     await state.clear()
+
+
+async def get_user_notes(
+    session: AsyncSession,
+    message: Message,
+    limit: Optional[int] = LIMIT_NOTES,
+    offset: Optional[int] = 0,
+) -> Tuple[list[Note], int]:
+    user = await user_crud.get_user_by_tg_id(message.from_user.id, session)
+    if not user:
+        user = await user_crud.create_object(
+            {"tg_id": message.from_user.id},
+            session,
+        )
+    total = await session.scalar(
+        select(func.count(Reminder.id)).where(Reminder.user_id == user.id)
+    )
+    total = int(total or 0)
+    reminders = await reminder_crud.get_objects(
+        session=session,
+        filters={"user_id": user.id, "status": "scheduled"},
+        options=[selectinload(Reminder.note)],
+        limit=limit,
+        offset=offset,
+    )
+    notes = [reminder.note for reminder in reminders]
+    return notes, total

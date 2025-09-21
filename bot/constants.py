@@ -19,3 +19,4 @@ ISO_REGEX = (
 )
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
+LIMIT_NOTES = 5

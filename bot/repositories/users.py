@@ -9,7 +9,7 @@ class CRUDUser(CRUDBase):
 
     async def get_user_by_tg_id(
         self,
-        tg_id,
+        tg_id: int,
         session: AsyncSession,
     ) -> User | None:
         """Получение пользователя по его id в TG."""
