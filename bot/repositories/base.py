@@ -42,7 +42,7 @@ class CRUDBase:
         order_by: Optional[Any] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
-        options: Optional[Sequence] = None
+        options: Optional[Sequence] = None,
     ) -> List[Any]:
         """
         Получение списка объектов по фильтрам.
@@ -55,7 +55,7 @@ class CRUDBase:
           - options - дополнительные опции загрузки
         """
         stmt = select(self.model)
-        if filters:
+        if filters is not None:
             for column, value in self.validate_filters(filters):
                 if isinstance(value, (list, tuple, set)):
                     stmt = stmt.where(column.in_(value))
@@ -63,20 +63,24 @@ class CRUDBase:
                     stmt = stmt.where(column.is_(None))
                 else:
                     stmt = stmt.where(column == value)
-        if order_by:
+        if order_by is not None:
             if isinstance(order_by, str):
                 stmt = stmt.order_by(self._get_model_column(order_by))
             else:
                 stmt = stmt.order_by(order_by)
-        if limit:
+        if limit is not None:
             stmt = stmt.limit(limit)
-        if offset:
+        if offset is not None:
             stmt = stmt.offset(offset)
-        if options:
-            if not isinstance(options, Sequence):
+        if options is not None:
+            if not isinstance(options, Sequence) or isinstance(
+                options,
+                (str, bytes),
+            ):
                 options = [options]
-            for option in options:
-                stmt = stmt.options(option)
+            for opt in options:
+                if opt is not None:
+                    stmt = stmt.options(opt)
         result = await session.execute(stmt)
         return result.scalars().all()
 

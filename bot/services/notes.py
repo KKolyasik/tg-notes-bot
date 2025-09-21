@@ -103,5 +103,5 @@ async def get_user_notes(
         offset=offset,
         order_by=Reminder.id.desc()
     )
-    notes = [reminder.note for reminder in reminders]
+    notes = [r.note for r in reminders if r.note is not None]
     return notes, total
