@@ -61,6 +61,11 @@ def get_notes_kb(
 ):
     inline_kb_list: list[list[InlineKeyboardButton]] = []
 
+    if not notes:
+        inline_kb_list.append([
+            InlineKeyboardButton(text="(заметок нет)", callback_data="noop")
+        ])
+
     for note in notes:
         title = _truncate(note.title)
         inline_kb_list.append(

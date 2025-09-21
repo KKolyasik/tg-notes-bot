@@ -3,12 +3,16 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, or_f
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.core.db import SessionFactory
+from bot.middlewares.db import DbSessionMiddleware
 from bot.constants import BTN_LIST, LIMIT_NOTES
 from bot.services.notes import get_user_notes
 from bot.keyboards.inline_kbs import get_notes_kb, NotesPaginate
 
 
 router = Router(name="Список заметок")
+router.message.middleware(DbSessionMiddleware(SessionFactory))
+router.callback_query.middleware(DbSessionMiddleware(SessionFactory))
 
 
 @router.message(or_f(Command("list"), F.text == BTN_LIST))
