@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str
 
     BASE_WEBAPP_URL: str
+    WEBHOOK_SECRET: str
 
     def redis_url(self, db: int = REDIS_DB) -> str:
         return (
