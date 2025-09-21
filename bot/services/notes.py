@@ -86,6 +86,7 @@ async def get_user_notes(
         )
     total = await session.scalar(
         select(func.count(Reminder.id))
+        .join(Reminder.note)
         .where(Reminder.user_id == user.id)
         .where(
             or_(
@@ -95,13 +96,16 @@ async def get_user_notes(
         )
     )
     total = int(total or 0)
-    reminders = await reminder_crud.get_objects(
-        session=session,
-        filters={"user_id": user.id, "status": ("scheduled", "queued")},
-        options=[selectinload(Reminder.note)],
-        limit=limit,
-        offset=offset,
-        order_by=Reminder.id.desc()
+    stmt = (
+        select(Reminder)
+        .join(Reminder.note)
+        .options(selectinload(Reminder.note))
+        .where(Reminder.user_id == user.id)
+        .where(Reminder.status.in_(("scheduled", "queued")))
+        .order_by(Reminder.id.desc())
+        .limit(limit)
+        .offset(offset)
     )
+    reminders = (await session.execute(stmt)).scalars().all()
     notes = [r.note for r in reminders if r.note is not None]
     return notes, total

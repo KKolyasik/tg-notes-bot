@@ -1,5 +1,3 @@
-import math
-
 from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
@@ -53,56 +51,58 @@ def get_timesnap():
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
-def get_notes_kb(
-    notes: list[Note],
-    limit: int,
-    offset: int,
-    total: int,
-):
-    inline_kb_list: list[list[InlineKeyboardButton]] = []
+def get_notes_kb(notes: list[Note], limit: int, offset: int, total: int):
+    rows: list[list[InlineKeyboardButton]] = []
 
-    if not notes:
-        inline_kb_list.append([
-            InlineKeyboardButton(text="(заметок нет)", callback_data="noop")
-        ])
-
-    for note in notes:
-        title = _truncate(note.title)
-        inline_kb_list.append(
+    if not notes and total == 0:
+        rows.append(
             [
                 InlineKeyboardButton(
-                    text=title,
-                    callback_data=NoteOpen(note_id=note.id).pack(),
+                    text="(заметок нет)",
+                    callback_data="noop",
                 )
             ]
         )
+
+    for n in notes:
+        title = _truncate(n.title)
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=title,
+                    callback_data=NoteOpen(note_id=n.id).pack(),
+                )
+            ]
+        )
+
     nav: list[InlineKeyboardButton] = []
     if offset > 0:
-        prev_off = max(offset - limit, 0)
         nav.append(
             InlineKeyboardButton(
-                text="« Предыдущая",
-                callback_data=NotesPaginate(offset=prev_off).pack(),
+                "« Предыдущая",
+                callback_data=NotesPaginate(
+                    offset=max(offset - limit, 0),
+                ).pack(),
             )
         )
     if offset + limit < total:
-        next_off = offset + limit
         nav.append(
             InlineKeyboardButton(
-                text="Следующая »",
-                callback_data=NotesPaginate(offset=next_off).pack(),
+                "Следующая »",
+                callback_data=NotesPaginate(offset=offset + limit).pack(),
             )
         )
-
     if nav:
-        inline_kb_list.append(nav)
-    total_pages = max(math.ceil(total / limit), 1)
+        rows.append(nav)
+
+    total_pages = max((total + limit - 1) // limit, 1)
     cur_page = min(offset // limit + 1, total_pages)
-    inline_kb_list.append(
+    rows.append(
         [
             InlineKeyboardButton(
                 text=f"Стр. {cur_page}/{total_pages}", callback_data="noop"
-            ),
+            )
         ]
     )
-    return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
+
+    return InlineKeyboardMarkup(inline_keyboard=rows)

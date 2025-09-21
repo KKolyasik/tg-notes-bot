@@ -30,7 +30,7 @@ async def get_list_notes(message: Message, session: AsyncSession):
     await message.answer(
         text,
         reply_markup=get_notes_kb(
-            notes,
+            notes=notes,
             limit=LIMIT_NOTES,
             offset=offset,
             total=total,
@@ -55,7 +55,7 @@ async def paginate_notes(
 
     await callback.message.edit_reply_markup(
         reply_markup=get_notes_kb(
-            notes,
+            notes=notes,
             limit=LIMIT_NOTES,
             offset=offset,
             total=total,
