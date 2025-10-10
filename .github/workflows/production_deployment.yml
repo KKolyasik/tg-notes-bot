@@ -20,11 +20,13 @@ jobs:
       matrix:
         include:
           - name: bot
-            image: ${{ secrets.DOCKER_USERNAME }}/bot
+            image_repo: bot
             dockerfile: Dockerfile.bot
+            context: .
           - name: web_picker
-            image: ${{ secrets.DOCKER_USERNAME }}/web_picker
+            image_repo: web_picker
             dockerfile: Dockerfile.picker
+            context: .
 
     steps:
       - name: Checkout
@@ -43,7 +45,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: docker.io/${{ matrix.image }}
+          images: docker.io/${{ secrets.DOCKER_USERNAME }}/${{ matrix.image_repo }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,format=short
@@ -54,7 +56,7 @@ jobs:
       - name: Build & Push ${{ matrix.name }}
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           platforms: linux/amd64
