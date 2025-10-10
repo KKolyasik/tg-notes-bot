@@ -10,6 +10,7 @@ from bot.constants import ISO_REGEX
 from bot.core.db import SessionFactory
 from bot.keyboards.callback import EditNote, NoteOpen
 from bot.keyboards.inline_kbs import edit_note_kb, get_timesnap
+from bot.keyboards.text_kbs import main_kb
 from bot.middlewares.db import DbSessionMiddleware
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
@@ -237,3 +238,9 @@ async def got_remind_at(
     )
 
     await state.clear()
+
+
+@router.callback_query(EditNote.filter(F.action == EditNoteAction.decline))
+async def decline_edit(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await callback.message.edit_text("Главное меню", reply_markup=main_kb())

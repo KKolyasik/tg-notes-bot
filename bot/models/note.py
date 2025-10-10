@@ -85,7 +85,7 @@ class Reminder(Base):
     )
     note: Mapped["Note"] = relationship(
         "Note",
-        back_populates="reminders",
+        back_populates="reminder",
         uselist=False,
         lazy="selectin",
     )

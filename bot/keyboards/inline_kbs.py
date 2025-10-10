@@ -73,7 +73,7 @@ def get_notes_kb(
     if offset > 0:
         nav.append(
             InlineKeyboardButton(
-                "« Предыдущая",
+                text="« Предыдущая",
                 callback_data=NotesPaginate(
                     offset=max(offset - limit, 0),
                 ).pack(),
@@ -82,7 +82,7 @@ def get_notes_kb(
     if offset + limit < total:
         nav.append(
             InlineKeyboardButton(
-                "Следующая »",
+                text="Следующая »",
                 callback_data=NotesPaginate(offset=offset + limit).pack(),
             ),
         )
@@ -141,7 +141,15 @@ def edit_note_kb(note: Note) -> InlineKeyboardMarkup:
     )
 
     kb_list.append(
-        [InlineKeyboardButton(text="↩️Отмена", callback_data="decline")],
+        [
+            InlineKeyboardButton(
+                text="↩️Отмена",
+                callback_data=EditNote(
+                    note_id=note.id,
+                    action=EditNoteAction.decline,
+                ).pack(),
+            )
+        ],
     )
 
     return InlineKeyboardMarkup(inline_keyboard=kb_list)
