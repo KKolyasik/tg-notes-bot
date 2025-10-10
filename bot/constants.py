@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 BTN_CREATE = "✅ Создать новую заметку"
 BTN_LIST = "📋 Список заметок"
 TIME_TO_SCHEDULE = 1 * 60

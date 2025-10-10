@@ -1,7 +1,8 @@
 from pathlib import Path
+
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from web_picker.endpoints.healthcheck import router as healthcher_router
 from web_picker.endpoints.tma import router as tma_router

@@ -1,14 +1,14 @@
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram import F, Router
 from aiogram.filters import Command, or_f
+from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.core.db import SessionFactory
-from bot.middlewares.db import DbSessionMiddleware
 from bot.constants import BTN_LIST, LIMIT_NOTES
+from bot.core.db import SessionFactory
+from bot.keyboards.callback import NotesPaginate
+from bot.keyboards.inline_kbs import get_notes_kb
+from bot.middlewares.db import DbSessionMiddleware
 from bot.services.notes import get_user_notes
-from bot.keyboards.inline_kbs import get_notes_kb, NotesPaginate
-
 
 router = Router(name="Список заметок")
 router.message.middleware(DbSessionMiddleware(SessionFactory))
@@ -59,6 +59,6 @@ async def paginate_notes(
             limit=LIMIT_NOTES,
             offset=offset,
             total=total,
-        )
+        ),
     )
     await callback.answer()

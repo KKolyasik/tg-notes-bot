@@ -1,18 +1,16 @@
-from typing import Union
 
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
-    AsyncSession,
-)
 from sqlalchemy import URL
-
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 engine = None
 SessionFactory: async_sessionmaker[AsyncSession] | None = None
 
 
-async def init_async_db(db_url: Union[str, URL]) -> None:
+async def init_async_db(db_url: str | URL) -> None:
     """Вызываем один раз ПОСЛЕ старта фонового loop (run_coro)."""
     global engine, SessionFactory
 

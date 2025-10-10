@@ -1,0 +1,71 @@
+target-version = "py313"
+line-length = 100
+indent-width = 4
+respect-gitignore = true
+
+# Корни исходников (поддерживает и layout со src/)
+src = ["bot", "web_picker"]
+
+# Что не проверяем
+exclude = [
+  ".git",
+  ".venv", "venv",
+  "__pycache__",
+  "build", "dist",
+  "docs/_build",
+  "alembic", "migrations",
+]
+
+[lint]
+# Набор правил: безопасные и практичные по умолчанию
+select = [
+  "E",   # pycodestyle (ошибки)
+  "W",   # pycodestyle (предупреждения)
+  "F",   # pyflakes
+  "I",   # isort (импорты)
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+  "N",   # pep8-naming
+  "C4",  # flake8-comprehensions
+  "SIM", # flake8-simplify
+  "RET", # flake8-return
+  "ARG", # flake8-unused-arguments
+  "BLE", # flake8-blind-except
+  "DTZ", # flake8-datetimez (наивные datetime)
+  "PTH", # flake8-use-pathlib
+  "COM", # flake8-commas
+  "LOG", # flake8-logging-format
+  "PGH", # pygrep-hooks (опасные шаблоны)
+  "RUF", # ruff-специфичные
+]
+
+# Совместимость с Black и здравый смысл по длине строки
+ignore = [
+  "E203", # двоеточие и пробелы — Black-совместимость
+  "E501", # длину строки контролирует форматер
+  "B904",
+  "BLE001",
+]
+
+# Автофиксы там, где безопасно
+fixable = ["ALL"]
+
+[lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+known-first-party = ["bot", "web_picker"]
+
+[lint.mccabe]
+max-complexity = 12
+
+[lint.per-file-ignores]
+"**/__init__.py" = ["F401"]                 # разрешаем реэкспорт
+"tests/**" = ["ARG001", "ARG002"]           # фикстуры c неиспользуемыми аргументами
+"alembic/**" = ["E402", "F401", "F841", "DTZ", "N"]
+"migrations/**" = ["E402", "F401", "F841", "DTZ", "N"]
+
+[format]
+quote-style = "preserve"
+indent-style = "space"
+line-ending = "lf"
+docstring-code-format = true

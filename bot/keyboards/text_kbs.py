@@ -8,7 +8,7 @@ def main_kb():
         [
             KeyboardButton(text=BTN_CREATE),
             KeyboardButton(text=BTN_LIST),
-        ]
+        ],
     ]
 
     return ReplyKeyboardMarkup(

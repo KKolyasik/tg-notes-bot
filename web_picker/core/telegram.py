@@ -1,11 +1,10 @@
 import httpx
 
-
 TELEGRAM_API = "https://api.telegram.org"
 
 
 async def answer_web_app_query(bot_token: str, query_id: str, iso_utc: str):
-    """Функция для оправки сообщения в чат со временем напоминания."""
+    """Функция для оправки сообщения в чат co временем напоминания."""
     result_query = {
         "type": "article",
         "id": query_id,

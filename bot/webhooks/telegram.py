@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Request, Header, HTTPException
 from aiogram import Bot, Dispatcher
 from aiogram.types import Update
+from fastapi import APIRouter, Header, HTTPException, Request
 
 from bot.core.config import settings
-
 
 router = APIRouter()
 

@@ -1,18 +1,18 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-import uvicorn
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.fsm.storage.redis import RedisStorage, RedisEventIsolation
+from aiogram.fsm.storage.redis import RedisEventIsolation, RedisStorage
+from fastapi import FastAPI
 from redis.asyncio import Redis
+import uvicorn
 
 from bot.core.config import settings
-from bot.webhooks.telegram import router as webhook_router
 from bot.handlers.notes.create import router as create_note_router
 from bot.handlers.notes.list import router as list_router
 from bot.handlers.start import router as start_router
+from bot.webhooks.telegram import router as webhook_router
 
 WEBHOOK_PATH = "/webhook"
 WEBHOOK_SECRET = settings.WEBHOOK_SECRET

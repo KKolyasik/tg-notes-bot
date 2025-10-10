@@ -1,17 +1,17 @@
-from typing import Optional, Tuple
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
-from sqlalchemy.orm import selectinload
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, FSInputFile
-from aiogram.exceptions import TelegramBadRequest
 
-from bot.constants import STATIC_DIR, LIMIT_NOTES
-from bot.repositories.users import user_crud
+from aiogram.exceptions import TelegramBadRequest
+from aiogram.fsm.context import FSMContext
+from aiogram.types import FSInputFile, Message
+from sqlalchemy import func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from bot.constants import LIMIT_NOTES, STATIC_DIR
+from bot.models import Note, Reminder
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
+from bot.repositories.users import user_crud
 from bot.services.utils import parse_iso_aware
-from bot.models import Note, Reminder
 
 
 async def save_note_from_state(
@@ -75,9 +75,9 @@ async def save_note_from_state(
 async def get_user_notes(
     session: AsyncSession,
     message: Message,
-    limit: Optional[int] = LIMIT_NOTES,
-    offset: Optional[int] = 0,
-) -> Tuple[list[Note], int]:
+    limit: int | None = LIMIT_NOTES,
+    offset: int | None = 0,
+) -> tuple[list[Note], int]:
     user = await user_crud.get_user_by_tg_id(message.from_user.id, session)
     if not user:
         user = await user_crud.create_object(
@@ -91,9 +91,9 @@ async def get_user_notes(
         .where(
             or_(
                 Reminder.status == "scheduled",
-                Reminder.status == "queued"
-            )
-        )
+                Reminder.status == "queued",
+            ),
+        ),
     )
     total = int(total or 0)
     stmt = (

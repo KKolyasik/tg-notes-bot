@@ -1,7 +1,7 @@
 import asyncio
+from collections.abc import Coroutine
 from threading import Thread
-from typing import Coroutine, Any
-
+from typing import Any
 
 loop: asyncio.AbstractEventLoop | None = None
 thread: Thread | None = None

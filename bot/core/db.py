@@ -1,13 +1,15 @@
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.ext.asyncio import (
-    create_async_engine,
     async_sessionmaker,
+    create_async_engine,
 )
+from sqlalchemy.orm import DeclarativeBase
 
 from bot.core.config import settings
 
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    """Базовый класс для декларативного описания моделей."""
+
 
 engine = create_async_engine(settings.db_url)
 

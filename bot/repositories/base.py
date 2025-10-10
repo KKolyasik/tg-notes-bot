@@ -1,18 +1,26 @@
-from typing import Any, List, Mapping, Optional, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, Generic, TypeVar
 
 from sqlalchemy import select
-from sqlalchemy.orm import InstrumentedAttribute
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import InstrumentedAttribute
 
+from bot.core.db import Base
 from bot.models import User
 
+ModelT = TypeVar("ModelT", bound=Base)
 
-class CRUDBase:
+
+class CRUDBase(Generic[ModelT]):
 
     def __init__(self, model):
         self.model = model
 
-    async def get_object_by_id(self, obj_id: int, session: AsyncSession):
+    async def get_object_by_id(
+        self,
+        obj_id: int,
+        session: AsyncSession,
+    ) -> ModelT | None:
         """Получение объекта по ID."""
         obj = await session.execute(
             select(self.model).where(self.model.id == obj_id),
@@ -24,9 +32,9 @@ class CRUDBase:
         self,
         data,
         session: AsyncSession,
-        user: Optional[User] = None,
-    ):
-        """ "Создание объекта в БД."""
+        user: User | None = None,
+    ) -> ModelT:
+        """Создание объекта в БД."""
         if user is not None:
             data["user_id"] = user.id
         obj = self.model(**data)
@@ -38,12 +46,12 @@ class CRUDBase:
     async def get_objects(
         self,
         session: AsyncSession,
-        filters: Optional[dict] = None,
-        order_by: Optional[Any] = None,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
-        options: Optional[Sequence] = None,
-    ) -> List[Any]:
+        filters: dict | None = None,
+        order_by: Any | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+        options: Sequence | None = None,
+    ) -> list[ModelT]:
         """
         Получение списка объектов по фильтрам.
 
@@ -84,9 +92,25 @@ class CRUDBase:
         result = await session.execute(stmt)
         return result.scalars().all()
 
+    async def update_obj(
+        self,
+        db_obj: ModelT,
+        data: dict,
+        session: AsyncSession,
+    ) -> ModelT:
+        if not isinstance(data, dict):
+            raise ValueError("Unsupported input data")
+
+        for key, value in data.items():
+            if hasattr(db_obj, key):
+                setattr(db_obj, key, value)
+
+        await session.commit()
+        return db_obj
+
     def validate_filters(
         self,
-        filters: Optional[Mapping[str, Any]],
+        filters: Mapping[str, Any] | None,
     ) -> list[tuple[InstrumentedAttribute, Any]]:
         if not filters:
             return []

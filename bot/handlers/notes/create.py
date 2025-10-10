@@ -1,16 +1,17 @@
-from aiogram import Router, F
+from datetime import datetime
+
+from aiogram import F, Router
 from aiogram.filters import Command, or_f
-from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.core.db import SessionFactory
-from bot.middlewares.db import DbSessionMiddleware
-from bot.keyboards.inline_kbs import skip_body_note_kb, get_timesnap
-from bot.services.notes import save_note_from_state
 from bot.constants import BTN_CREATE, ISO_REGEX
-
+from bot.core.db import SessionFactory
+from bot.keyboards.inline_kbs import get_timesnap, skip_body_note_kb
+from bot.middlewares.db import DbSessionMiddleware
+from bot.services.notes import save_note_from_state
 
 router = Router(name="Создание заметки")
 router.message.middleware(DbSessionMiddleware(SessionFactory))
@@ -18,9 +19,9 @@ router.callback_query.middleware(DbSessionMiddleware(SessionFactory))
 
 
 class NewNote(StatesGroup):
-    title = State()
-    body = State()
-    remaind_at = State()
+    title: str = State()
+    body: str = State()
+    remaind_at: datetime = State()
 
 
 @router.message(or_f(Command("new"), F.text == BTN_CREATE))
@@ -89,12 +90,12 @@ async def got_body(message: Message, state: FSMContext):
 
 @router.message(F.text.regexp(ISO_REGEX), NewNote.remaind_at)
 async def handle_webapp_data(
-    message: Message, state: FSMContext, session: AsyncSession
+    message: Message, state: FSMContext, session: AsyncSession,
 ):
     await state.update_data(remaind_at=message.text)
     await save_note_from_state(
         state,
         session,
         message.from_user.id,
-        message
+        message,
     )

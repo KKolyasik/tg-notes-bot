@@ -1,15 +1,15 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from aiogram.exceptions import TelegramRetryAfter
-from celery import shared_task
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from bot.celery.adb import get_async_session
+from bot.celery.aloop import run_coro
+from bot.celery.utils import create_message, make_bot
 from bot.core.config import settings
 from bot.models import Reminder
-from bot.celery.utils import create_message, make_bot
-from bot.celery.aloop import run_coro
-from bot.celery.adb import get_async_session
+from celery import shared_task
 
 
 @shared_task()
@@ -24,7 +24,7 @@ def check_reminders(window: int):
 
 
 async def _check_reminders(window: int):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     until = now + timedelta(minutes=window)
     async with get_async_session() as session:
         stmt = (
@@ -103,6 +103,6 @@ async def _send_reminder(self, reminder_id: int, chat_id: int, message: str):
             await bot.session.close()
 
         reminder.status = "sent"
-        reminder.sent_at = datetime.now(timezone.utc)
+        reminder.sent_at = datetime.now(UTC)
 
         await session.commit()

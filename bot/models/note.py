@@ -1,15 +1,15 @@
 from sqlalchemy import (
-    Column,
-    Integer,
     BigInteger,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
     String,
     Text,
-    DateTime,
-    ForeignKey,
-    Enum,
     func,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from bot.core.db import Base
 
@@ -26,7 +26,12 @@ class Note(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
-    reminders = relationship("Reminder", back_populates="note")
+    reminder: Mapped["Reminder"] = relationship(
+        "Reminder",
+        back_populates="note",
+        lazy="selectin",
+        uselist=False,
+    )
 
 
 class Reminder(Base):
@@ -37,6 +42,7 @@ class Reminder(Base):
         Integer,
         ForeignKey("notes.id", ondelete="CASCADE"),
         index=True,
+        unique=True,
         nullable=False,
     )
     user_id = Column(
@@ -77,5 +83,10 @@ class Reminder(Base):
         onupdate=func.now(),
         nullable=False,
     )
-    note = relationship("Note", back_populates="reminders")
+    note: Mapped["Note"] = relationship(
+        "Note",
+        back_populates="reminders",
+        uselist=False,
+        lazy="selectin",
+    )
     user = relationship("User", back_populates="reminders")

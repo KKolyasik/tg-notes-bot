@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, HTTPException, Header
-from web_picker.schemas.tma import SubmitPayload
+
+from fastapi import APIRouter, Header, HTTPException
+
 from web_picker.core.config import settings
-from web_picker.endpoints.validators import validate_init_data
 from web_picker.core.telegram import answer_web_app_query
+from web_picker.endpoints.validators import validate_init_data
+from web_picker.schemas.tma import SubmitPayload
 
 router = APIRouter(prefix="/tma", tags=["tma"])
 
