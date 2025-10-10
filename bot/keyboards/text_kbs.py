@@ -14,5 +14,4 @@ def main_kb():
     return ReplyKeyboardMarkup(
         keyboard=kb_list,
         resize_keyboard=True,
-        one_time_keyboard=True,
     )
