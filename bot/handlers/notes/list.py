@@ -21,7 +21,7 @@ async def get_list_notes(message: Message, session: AsyncSession):
     offset = 0
     notes, total = await get_user_notes(
         session,
-        message,
+        message.from_user.id,
         limit=LIMIT_NOTES,
         offset=offset,
     )
@@ -48,7 +48,7 @@ async def paginate_notes(
     offset = max(int(callback_data.offset), 0)
     notes, total = await get_user_notes(
         session,
-        callback.message,
+        callback.from_user.id,
         limit=LIMIT_NOTES,
         offset=offset,
     )

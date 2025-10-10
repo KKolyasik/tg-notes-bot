@@ -243,3 +243,4 @@ async def got_remind_at(
 async def decline_edit(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.message.delete()
+    await callback.answer()

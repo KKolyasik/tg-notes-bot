@@ -74,14 +74,14 @@ async def save_note_from_state(
 
 async def get_user_notes(
     session: AsyncSession,
-    message: Message,
+    user_tg_id: int,
     limit: int | None = LIMIT_NOTES,
     offset: int | None = 0,
 ) -> tuple[list[Note], int]:
-    user = await user_crud.get_user_by_tg_id(message.from_user.id, session)
+    user = await user_crud.get_user_by_tg_id(user_tg_id, session)
     if not user:
         user = await user_crud.create_object(
-            {"tg_id": message.from_user.id},
+            {"tg_id": user_tg_id},
             session,
         )
     total = await session.scalar(
