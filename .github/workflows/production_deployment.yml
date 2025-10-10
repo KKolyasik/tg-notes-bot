@@ -47,7 +47,7 @@ jobs:
         with:
           images: docker.io/${{ secrets.DOCKER_USERNAME }}/${{ matrix.image_repo }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
             type=sha,format=short
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
