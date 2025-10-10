@@ -37,10 +37,8 @@ def stop_loop() -> None:
 
 
 def run_coro(coro: Coroutine[Any, Any, Any]) -> Any:
+    """Выполнить корутину в фоновом loop и дождаться результата (блокирующе).
     """
-    Выполнить корутину в фоновом loop и дождаться результата (блокирующе).
-    """
-
     if loop is None:
         raise RuntimeError("Async loop is not started")
 

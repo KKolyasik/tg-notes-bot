@@ -1,3 +1,4 @@
+from celery import Celery
 from celery.signals import worker_process_init, worker_shutdown
 
 from bot.celery.adb import dispose_async_db, init_async_db
@@ -5,7 +6,6 @@ from bot.celery.aloop import run_coro, start_loop, stop_loop
 from bot.celery.tasks import check_reminders
 from bot.constants import TIME_TO_SCHEDULE
 from bot.core.config import settings
-from celery import Celery
 
 
 class MyCelery(Celery):

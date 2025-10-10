@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    """Настройки приожения."""
     BOT_TOKEN: str
     BASE_WEBAPP_URL: str
 

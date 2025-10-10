@@ -148,7 +148,7 @@ def edit_note_kb(note: Note) -> InlineKeyboardMarkup:
                     note_id=note.id,
                     action=EditNoteAction.decline,
                 ).pack(),
-            )
+            ),
         ],
     )
 

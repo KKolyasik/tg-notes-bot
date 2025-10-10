@@ -52,8 +52,7 @@ class CRUDBase(Generic[ModelT]):
         offset: int | None = None,
         options: Sequence | None = None,
     ) -> list[ModelT]:
-        """
-        Получение списка объектов по фильтрам.
+        """Получение списка объектов по фильтрам.
 
         Args:
           - filters - словарь с фильтрами

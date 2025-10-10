@@ -14,10 +14,10 @@ router = APIRouter(prefix="/tma", tags=["tma"])
 async def submit(
     payload: SubmitPayload,
     x_telegram_init_data: str | None = Header(default=None),
-):
-    """
-    Принимаем данные из WebApp (inline), валидируем initData,
+) -> dict[str, bool]:
+    """Принимаем данные из WebApp (inline), валидируем initData,
     отвечаем через answerWebAppQuery.
+
     """
     init_data = payload.init_data or x_telegram_init_data
     if not init_data:

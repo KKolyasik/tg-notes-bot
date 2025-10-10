@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class SubmitPayload(BaseModel):
+    """Схема для получения времени."""
     iso_utc: str = Field(..., description="ISO время в UTC от клиента")
     local: str | None
     tz_offset_min: int | None = None

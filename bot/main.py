@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 
+import uvicorn
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisEventIsolation, RedisStorage
 from fastapi import FastAPI
 from redis.asyncio import Redis
-import uvicorn
 
 from bot.core.config import settings
 from bot.handlers.notes.create import router as create_note_router

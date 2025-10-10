@@ -102,7 +102,7 @@ async def get_user_notes(
         .options(selectinload(Reminder.note))
         .where(Reminder.user_id == user.id)
         .where(Reminder.status.in_(("scheduled", "queued")))
-        .order_by(Reminder.id.desc())
+        .order_by(Reminder.scheduled_at.asc())
         .limit(limit)
         .offset(offset)
     )

@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from aiogram.exceptions import TelegramRetryAfter
+from celery import shared_task
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -9,13 +10,11 @@ from bot.celery.aloop import run_coro
 from bot.celery.utils import create_message, make_bot
 from bot.core.config import settings
 from bot.models import Reminder
-from celery import shared_task
 
 
 @shared_task()
 def check_reminders(window: int):
-    """
-    Проверяет БД каждую минуту, чтобы запланировать отправку.
+    """Проверяет БД каждую минуту, чтобы запланировать отправку.
 
     Args:
         - window (время в минутах за которое нужно запланировать)
