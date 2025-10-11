@@ -18,4 +18,5 @@ ISO_REGEX = (
 )
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
+IMG_DIR = STATIC_DIR / "images"
 LIMIT_NOTES = 5

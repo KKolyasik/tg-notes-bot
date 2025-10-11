@@ -5,7 +5,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from bot.constants import LIMIT_NOTES, STATIC_DIR
+from bot.constants import LIMIT_NOTES, IMG_DIR
 from bot.models import Note, Reminder
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
@@ -44,7 +44,6 @@ async def save_note_from_state(
     }
     await reminder_crud.create_object(reminder_payload, session, user)
     try:
-        IMG_DIR = STATIC_DIR / "images"
         candidates = [
             IMG_DIR / "save_note.png",
             IMG_DIR / "save_note.PNG",

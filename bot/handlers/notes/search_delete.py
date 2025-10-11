@@ -14,7 +14,7 @@ router.message.middleware(DbSessionMiddleware(SessionFactory))
 router.callback_query.middleware(DbSessionMiddleware(SessionFactory))
 
 
-@router.callback_query(EditNote.filter(F.action == EditNoteAction.decline))
+@router.callback_query(EditNote.filter(F.action == EditNoteAction.delete))
 async def delete_note(
     callback: CallbackQuery,
     callback_data: EditNote,
