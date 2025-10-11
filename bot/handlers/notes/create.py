@@ -39,7 +39,6 @@ async def new_note(message: Message, state: FSMContext):
 async def got_title(message: Message, state: FSMContext):
     """Хэндлер на получение заголовка заметки."""
     await state.update_data(title=message.text.strip())
-    await state.set_state(NewNote.body)
     text = (
         "<b><i><u>📓 Тело заметки</u></i></b>\n"
         "📄 Теперь можешь добавить подробности"
@@ -49,6 +48,7 @@ async def got_title(message: Message, state: FSMContext):
         text,
         reply_markup=skip_body_note_kb(),
     )
+    await state.set_state(NewNote.body)
 
 
 @router.callback_query(NewNote.body, F.data == "decline")
