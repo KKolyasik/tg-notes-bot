@@ -89,7 +89,7 @@ services:
     image: kkolyasik/bot:latest
     env_file:
       - .env
-    command: celery -A bot.celery.main.app worker -l INFO -Q reminders,maintenance --concurrency=4
+    command: celery -A bot.celery.main.app worker -l INFO -Q reminders,maintenance --concurrency=4 -E -n worker@%h
     depends_on:
       redis:
         condition: service_healthy
