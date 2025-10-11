@@ -28,7 +28,7 @@ async def save_note_from_state(
     if not user:
         user = await user_crud.create_object({"tg_id": user_id}, session)
 
-    scheduled_at = parse_iso_aware(data.get("remaind_at"))
+    scheduled_at = parse_iso_aware(data.get("remind_at"))
 
     note_payload = {
         "title": data.get("title", ""),
