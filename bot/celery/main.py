@@ -16,7 +16,11 @@ class MyCelery(Celery):
         return super().gen_task_name(name, module)
 
 
-app = MyCelery("notes", broker=settings.redis_url(1))
+app = MyCelery(
+    "notes",
+    broker=settings.redis_url(1),
+    backend=settings.redis_url(2),
+)
 
 app.conf.update(
     task_acks_late=True,

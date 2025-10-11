@@ -16,95 +16,87 @@ def _truncate(text: str, n: int = 32) -> str:
 
 
 def skip_body_note_kb() -> InlineKeyboardMarkup:
-    inline_kb_list = [
-        [
-            InlineKeyboardButton(
-                text="❌Создать заметку без текста",
-                callback_data="note:skip_body",
-            ),
-        ],
-        [InlineKeyboardButton(text="↩️Отмена", callback_data="decline")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
+    kb = InlineKeyboardBuilder()
+    kb.button(
+        text="❌Создать заметку без текста",
+        callback_data="note:skip_body",
+    )
+    kb.button(
+        text="↩️Отмена",
+        allback_data="decline",
+    )
+    kb.adjust(1)
+    return kb.as_markup()
 
 
 def get_timesnap() -> InlineKeyboardMarkup:
-    inline_kb_list = [
-        [
-            InlineKeyboardButton(
-                text="⏳ Выбрать время",
-                web_app=WebAppInfo(url="https://timesnap.ru/picker"),
-            ),
-        ],
-    ]
-
-    return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
+    kb = InlineKeyboardBuilder()
+    kb.button(
+        text="⏳ Выбрать время",
+        web_app=WebAppInfo(url="https://timesnap.ru/picker"),
+    )
+    kb.adjust(1)
+    return kb.as_markup()
 
 
 def get_notes_kb(
-    notes: list[Note],
+    notes: list["Note"],
     limit: int,
     offset: int,
     total: int,
 ) -> InlineKeyboardMarkup:
-    rows: list[list[InlineKeyboardButton]] = []
+    kb = InlineKeyboardBuilder()
 
     if not notes and total == 0:
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text="(заметок нет)",
-                    callback_data="noop",
-                ),
-            ],
+        kb.row(
+            InlineKeyboardButton(text="Заметок нет", callback_data="noop"),
+            width=1,
         )
+        return kb.as_markup()
 
     for n in notes:
-        title = _truncate(n.title)
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text=title,
-                    callback_data=NoteOpen(note_id=n.id).pack(),
-                ),
-            ],
+        kb.row(
+            InlineKeyboardButton(
+                text=_truncate(n.title),
+                callback_data=NoteOpen(note_id=n.id).pack(),
+            ),
+            width=1,
         )
 
-    nav: list[InlineKeyboardButton] = []
+    nav_buttons: list[InlineKeyboardButton] = []
     if offset > 0:
-        nav.append(
+        nav_buttons.append(
             InlineKeyboardButton(
                 text="« Предыдущая",
                 callback_data=NotesPaginate(
                     offset=max(offset - limit, 0),
                 ).pack(),
-            ),
+            )
         )
     if offset + limit < total:
-        nav.append(
+        nav_buttons.append(
             InlineKeyboardButton(
                 text="Следующая »",
                 callback_data=NotesPaginate(offset=offset + limit).pack(),
-            ),
+            )
         )
-    if nav:
-        rows.append(nav)
+    if nav_buttons:
+        kb.row(*nav_buttons, width=len(nav_buttons))
 
     total_pages = max((total + limit - 1) // limit, 1)
     cur_page = min(offset // limit + 1, total_pages)
-    rows.append(
-        [
-            InlineKeyboardButton(
-                text=f"Стр. {cur_page}/{total_pages}",
-                callback_data="noop",
-            ),
-        ],
+    kb.row(
+        InlineKeyboardButton(
+            text=f"Стр. {cur_page}/{total_pages}",
+            callback_data="noop",
+        ),
+        width=1,
     )
 
-    return InlineKeyboardMarkup(inline_keyboard=rows)
+    return kb.as_markup()
 
 
-def edit_note_kb(note: "Note") -> InlineKeyboardMarkup:
+def edit_note_kb(note: Note) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
 
     kb.button(

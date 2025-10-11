@@ -2,6 +2,7 @@ volumes:
   pg-data:
     name: tg-notes-bot_pg-data
   redis_data:
+  flower_data:
 
 services:
   postgres:
@@ -96,3 +97,24 @@ services:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
+  
+  flower:
+    image: mher/flower:latest
+    container_name: flower_container
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:5555:5555"
+    command:
+      - "flower"
+      - "--broker=$(CELERY_BROKER_URL)"
+      - "--result-backend=$(CELERY_RESULT_BACKEND)"
+      - "--port=5555"
+      - "--url-prefix=/flower"
+      - "--basic_auth=$(FLOWER_BASIC_AUTH)"
+      - "--db=/data/flower.db"
+    volumes:
+      - flower_data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
