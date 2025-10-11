@@ -57,7 +57,7 @@ async def create_note_withot_body(
     state: FSMContext,
 ):
     """Хэндлер на создание заметки без тела."""
-    await state.update_data(body="")
+    await state.update_data(body=None)
     await call.answer("Далее")
     text = (
         "<b><i><u>📍 Время заметки</u></i></b>\n"

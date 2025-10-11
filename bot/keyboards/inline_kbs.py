@@ -3,6 +3,7 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     WebAppInfo,
 )
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot.keyboards.callback import EditNote, NoteOpen, NotesPaginate
 from bot.models import Note
@@ -103,65 +104,52 @@ def get_notes_kb(
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def edit_note_kb(note: Note) -> InlineKeyboardMarkup:
-    kb_list = [
-        [
-            InlineKeyboardButton(
-                text="Редактировать заголовок",
-                callback_data=EditNote(
-                    note_id=note.id,
-                    action=EditNoteAction.header,
-                ).pack(),
-            ),
-        ],
-    ]
-    if note.body is not None:
-        kb_list.append(
-            [
-                InlineKeyboardButton(
-                    text="Редактировать тело заметки",
-                    callback_data=EditNote(
-                        note_id=note.id,
-                        action=EditNoteAction.body,
-                    ).pack(),
-                ),
-            ],
-        )
+def edit_note_kb(note: "Note") -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
 
-    kb_list.append(
-        [
-            InlineKeyboardButton(
-                text="Редактировать время заметки",
-                callback_data=EditNote(
-                    note_id=note.id,
-                    action=EditNoteAction.remind_at,
-                ).pack(),
-            ),
-        ],
+    kb.button(
+        text="Редактировать заголовок",
+        callback_data=EditNote(
+            note_id=note.id,
+            action=EditNoteAction.header,
+        ).pack(),
     )
 
-    kb_list.append(
-        [
-            InlineKeyboardButton(
-                text="Удалить заметку",
-                callback_data=EditNote(
-                    note_id=note.id,
-                    action=EditNoteAction.delete,
-                ).pack(),
-            )
-        ]
+    kb.button(
+        text=(
+            "Редактировать тело заметки"
+            if note.body
+            else "Добавить тело заметки"
+        ),
+        callback_data=EditNote(
+            note_id=note.id,
+            action=EditNoteAction.body,
+        ).pack(),
     )
 
-    kb_list.append(
-        [
-            InlineKeyboardButton(
-                text="↩️Отмена",
-                callback_data=EditNote(
-                    note_id=note.id,
-                    action=EditNoteAction.decline,
-                ).pack(),
-            ),
-        ],
+    kb.button(
+        text="Редактировать время заметки",
+        callback_data=EditNote(
+            note_id=note.id,
+            action=EditNoteAction.remind_at,
+        ).pack(),
     )
 
-    return InlineKeyboardMarkup(inline_keyboard=kb_list)
+    kb.button(
+        text="Удалить заметку",
+        callback_data=EditNote(
+            note_id=note.id,
+            action=EditNoteAction.delete,
+        ).pack(),
+    )
+
+    kb.button(
+        text="↩️Отмена",
+        callback_data=EditNote(
+            note_id=note.id,
+            action=EditNoteAction.decline,
+        ).pack(),
+    )
+
+    kb.adjust(1)
+    return kb.as_markup()

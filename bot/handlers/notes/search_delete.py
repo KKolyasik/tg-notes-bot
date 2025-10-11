@@ -24,4 +24,4 @@ async def delete_note(
     note = await note_crud.get_object_by_id(callback_data.note_id, session)
     await note_crud.delete_obj(note, session)
     await callback.message.edit_text("Заметка успешно удалена")
-    await callback.message.answer("Готово ✅")
+    await callback.message.answer()

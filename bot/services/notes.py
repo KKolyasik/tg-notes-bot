@@ -32,7 +32,7 @@ async def save_note_from_state(
 
     note_payload = {
         "title": data.get("title", ""),
-        "body": data.get("body", ""),
+        "body": data.get("body", None),
     }
     note = await note_crud.create_object(note_payload, session)
 
