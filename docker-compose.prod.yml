@@ -106,13 +106,16 @@ services:
     ports:
       - "127.0.0.1:5555:5555"
     command:
-      - "flower"
-      - "--broker=$(CELERY_BROKER_URL)"
-      - "--result-backend=$(CELERY_RESULT_BACKEND)"
-      - "--port=5555"
-      - "--url-prefix=/flower"
-      - "--basic_auth=$(FLOWER_BASIC_AUTH)"
-      - "--db=/data/flower.db"
+    - celery
+    - --broker=${CELERY_BROKER_URL}
+    - --result-backend=${CELERY_RESULT_BACKEND}
+    - flower
+    - --address=0.0.0.0
+    - --port=${FLOWER_PORT}
+    - --url-prefix=/flower
+    - --basic_auth=${FLOWER_BASIC_AUTH}
+    - --persistent=true
+    - --db=/data/flower.db
     volumes:
       - flower_data:/data
     depends_on:
