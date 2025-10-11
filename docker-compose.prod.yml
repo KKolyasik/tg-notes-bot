@@ -1,5 +1,5 @@
 volumes:
-  pg_data:
+  pg-data:
   redis_data:
 
 services:
@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 5s
