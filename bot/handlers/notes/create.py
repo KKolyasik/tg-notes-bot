@@ -21,14 +21,14 @@ router.callback_query.middleware(DbSessionMiddleware(SessionFactory))
 class NewNote(StatesGroup):
     title: str = State()
     body: str = State()
-    remaind_at: datetime = State()
+    remind_at: datetime = State()
 
 
 @router.message(or_f(Command("new"), F.text == BTN_CREATE))
 async def new_note(message: Message, state: FSMContext):
     """Хэндлер на создание новой заметки."""
     text = (
-        "<b><i><u>✍️ Заголовок заметки</u></i></b>/\n"
+        "<b><i><u>✍️ Заголовок заметки</u></i></b>\n"
         "📝 Введите заголовок для заметки — коротко и ясно!"
     )
     await message.answer(text)
@@ -51,8 +51,15 @@ async def got_title(message: Message, state: FSMContext):
     )
 
 
+@router.callback_query(NewNote.body, F.data == "decline")
+async def cancel_note(call: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await call.answer("Отменено")
+    await call.message.answer("Окей, создание заметки отменил ✅")
+
+
 @router.callback_query(NewNote.body, F.data == "note:skip_body")
-async def create_note_withot_body(
+async def create_note_without_body(
     call: CallbackQuery,
     state: FSMContext,
 ):
@@ -68,7 +75,7 @@ async def create_note_withot_body(
         picker_msg_id=msg.message_id,
         picker_chat_id=msg.chat.id,
     )
-    await state.set_state(NewNote.remaind_at)
+    await state.set_state(NewNote.remind_at)
 
 
 @router.message(F.text & ~F.text.startswith("/"), NewNote.body)
@@ -85,14 +92,14 @@ async def got_body(message: Message, state: FSMContext):
         picker_msg_id=msg.message_id,
         picker_chat_id=msg.chat.id,
     )
-    await state.set_state(NewNote.remaind_at)
+    await state.set_state(NewNote.remind_at)
 
 
-@router.message(F.text.regexp(ISO_REGEX), NewNote.remaind_at)
+@router.message(F.text.regexp(ISO_REGEX), NewNote.remind_at)
 async def handle_webapp_data(
     message: Message, state: FSMContext, session: AsyncSession,
 ):
-    await state.update_data(remaind_at=message.text)
+    await state.update_data(remind_at=message.text)
     await save_note_from_state(
         state,
         session,

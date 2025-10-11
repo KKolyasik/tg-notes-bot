@@ -23,7 +23,7 @@ def skip_body_note_kb() -> InlineKeyboardMarkup:
     )
     kb.button(
         text="↩️Отмена",
-        allback_data="decline",
+        сallback_data="decline",
     )
     kb.adjust(1)
     return kb.as_markup()
