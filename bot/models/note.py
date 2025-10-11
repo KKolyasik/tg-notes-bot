@@ -31,6 +31,8 @@ class Note(Base):
         back_populates="note",
         lazy="selectin",
         uselist=False,
+        cascade="all, delete-orphan",
+        single_parent=True,
     )
 
 
