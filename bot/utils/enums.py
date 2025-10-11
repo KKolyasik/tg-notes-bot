@@ -7,3 +7,4 @@ class EditNoteAction(StrEnum):
     body = "body"
     remind_at = "remind_at"
     decline = "decline"
+    delete = "delete"

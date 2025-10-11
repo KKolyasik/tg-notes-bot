@@ -143,6 +143,18 @@ def edit_note_kb(note: Note) -> InlineKeyboardMarkup:
     kb_list.append(
         [
             InlineKeyboardButton(
+                text="Удалить заметку",
+                callback_data=EditNote(
+                    note_id=note.id,
+                    action=EditNoteAction.delete,
+                ).pack(),
+            )
+        ]
+    )
+
+    kb_list.append(
+        [
+            InlineKeyboardButton(
                 text="↩️Отмена",
                 callback_data=EditNote(
                     note_id=note.id,

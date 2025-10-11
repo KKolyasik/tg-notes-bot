@@ -12,6 +12,7 @@ from bot.core.config import settings
 from bot.handlers.notes.create import router as create_note_router
 from bot.handlers.notes.list import router as list_router
 from bot.handlers.notes.view_edit import router as edit_router
+from bot.handlers.notes.search_delete import router as delete_router
 from bot.handlers.start import router as start_router
 from bot.webhooks.telegram import router as webhook_router
 
@@ -39,6 +40,7 @@ async def lifespan(app: FastAPI):
     dp.include_router(start_router)
     dp.include_router(list_router)
     dp.include_router(edit_router)
+    dp.include_router(delete_router)
 
     app.state.bot = bot
     app.state.dp = dp

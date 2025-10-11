@@ -107,6 +107,10 @@ class CRUDBase(Generic[ModelT]):
         await session.commit()
         return db_obj
 
+    async def delete_obj(self, db_obj: ModelT, session: AsyncSession) -> None:
+        await session.delete(db_obj)
+        await session.commit()
+
     def validate_filters(
         self,
         filters: Mapping[str, Any] | None,
