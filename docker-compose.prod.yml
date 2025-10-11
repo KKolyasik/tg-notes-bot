@@ -1,5 +1,6 @@
 volumes:
   pg-data:
+    name: tg-notes-bot_pg-data
   redis_data:
 
 services:

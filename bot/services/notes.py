@@ -1,4 +1,3 @@
-
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message
@@ -45,7 +44,14 @@ async def save_note_from_state(
     }
     await reminder_crud.create_object(reminder_payload, session, user)
     try:
-        image_path = STATIC_DIR / "images" / "save_note.png"
+        IMG_DIR = STATIC_DIR / "images"
+        candidates = [
+            IMG_DIR / "save_note.png",
+            IMG_DIR / "save_note.PNG",
+            IMG_DIR / "save_note.jpg",
+            IMG_DIR / "save_note.jpeg",
+        ]
+        image_path = next((p for p in candidates if p.exists()), None)
         photo = FSInputFile(image_path)
         time = scheduled_at.strftime("%Y-%m-%d %H:%M:%S")
         await message.bot.edit_message_reply_markup(
