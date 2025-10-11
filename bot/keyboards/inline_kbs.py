@@ -18,13 +18,10 @@ def _truncate(text: str, n: int = 32) -> str:
 def skip_body_note_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(
-        text="❌Создать заметку без текста",
+        text="❌ Создать заметку без текста",
         callback_data="note:skip_body",
     )
-    kb.button(
-        text="↩️Отмена",
-        сallback_data="decline",
-    )
+    kb.button(text="↩️ Отмена", callback_data="decline")
     kb.adjust(1)
     return kb.as_markup()
 
