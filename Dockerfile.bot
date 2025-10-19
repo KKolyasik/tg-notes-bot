@@ -1,0 +1,15 @@
+FROM python:3.13
+WORKDIR /app
+
+COPY poetry.lock pyproject.toml ./
+
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-interaction --no-ansi --no-root
+
+
+COPY ./migrations /app/migrations
+COPY ./alembic.ini /app/alembic.ini
+COPY ./bot /app/bot
+
+CMD ["uvicorn", "bot.main:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers", "--forwarded-allow-ips='*'"]
