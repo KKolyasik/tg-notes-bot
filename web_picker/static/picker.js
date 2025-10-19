@@ -2,33 +2,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const tg = window.Telegram?.WebApp;
 
   // --- тема Telegram → CSS-переменные ---
-  function applyTheme(p) {
-    const root = document.documentElement;
-    const set = (name, val) => val && root.style.setProperty(name, val);
-    set('--tg-theme-bg-color', p.bg_color);
-    set('--tg-theme-text-color', p.text_color);
-    set('--tg-theme-secondary-bg-color', p.secondary_bg_color);
-    set('--tg-theme-hint-color', p.hint_color);
-    set('--tg-theme-link-color', p.link_color);
-    set('--tg-theme-button-color', p.button_color);
-    set('--tg-theme-button-text-color', p.button_text_color);
+  const DARK_THEME = {
+    "--tg-theme-bg-color": "#0e1621",
+    "--tg-theme-text-color": "#eaeff5",
+    "--tg-theme-secondary-bg-color": "#17212b",
+    "--tg-theme-hint-color": "rgba(255,255,255,0.12)",
+    "--tg-theme-link-color": "#6ab3f3",
+    "--tg-theme-button-color": "#2ea6ff",
+    "--tg-theme-button-text-color": "#ffffff",
+  };
 
-    if (p.bg_color) {
-      const hex = p.bg_color.replace('#', '');
-      const r = parseInt(hex.slice(0,2),16);
-      const g = parseInt(hex.slice(2,4),16);
-      const b = parseInt(hex.slice(4,6),16);
-      const isDark = (0.2126*r + 0.7152*g + 0.0722*b) < 128;
-      root.style.setProperty('--tg-color-scheme', isDark ? 'dark' : 'light');
-    }
+  function applyTheme() {
+    const root = document.documentElement;
+    Object.entries(DARK_THEME).forEach(([name, val]) => root.style.setProperty(name, val));
+    root.style.setProperty("--tg-color-scheme", "dark");
   }
 
   // --- Telegram bootstrap ---
+  applyTheme();
   if (tg) {
     tg.expand();
     tg.setHeaderColor?.("secondary_bg_color");
-    applyTheme(tg.themeParams || {});
-    tg.onEvent?.("themeChanged", () => applyTheme(tg.themeParams || {}));
+    tg.onEvent?.("themeChanged", applyTheme);
     tg.BackButton?.show();
     tg.BackButton?.onClick(() => tg.close());
     tg.MainButton?.hide?.(); // убираем системную нижнюю кнопку

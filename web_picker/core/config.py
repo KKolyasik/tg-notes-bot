@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     BASE_WEBAPP_URL: str
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
 settings = Settings()
