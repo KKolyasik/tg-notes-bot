@@ -162,11 +162,8 @@ services:
       - .env
     environment:
       AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
-      AIRFLOW__API__HOST: airflow_webserver
-      AIRFLOW__API__PORT: "8090"
-      AIRFLOW__API__URL: http://airflow_webserver:8090
-      AIRFLOW__LOGGING__WORKER_LOG_SERVER_HOST: airflow_scheduler
-      AIRFLOW__LOGGING__WORKER_LOG_SERVER_PORT: "8793"
+      AIRFLOW__API__BASE_URL: ${BASE_WEBAPP_URL}/airflow
+      AIRFLOW__CORE__EXECUTION_API_SERVER_URL: ${BASE_WEBAPP_URL}/airflow/execution
       BACKEND_URL: http://bot:8080
     depends_on:
       airflow_db:
@@ -176,7 +173,7 @@ services:
       airflow_dag_processor:
         condition: service_started
       airflow_webserver:
-        condition: service_started
+        condition: service_healthy
     volumes:
       - ./passwords.json:/opt/airflow/passwords.json
     command: airflow scheduler
@@ -193,11 +190,8 @@ services:
       - .env
     environment:
       AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
-      AIRFLOW__API__HOST: 0.0.0.0
-      AIRFLOW__API__PORT: "8090"
-      AIRFLOW__API__BASE_URL: /airflow
-      AIRFLOW__LOGGING__WORKER_LOG_SERVER_HOST: airflow_scheduler
-      AIRFLOW__LOGGING__WORKER_LOG_SERVER_PORT: "8793"
+      AIRFLOW__API__BASE_URL: ${BASE_WEBAPP_URL}/airflow
+      AIRFLOW__CORE__EXECUTION_API_SERVER_URL: ${BASE_WEBAPP_URL}/airflow/execution
       BACKEND_URL: http://bot:8080
     depends_on:
       airflow_db:
@@ -224,8 +218,8 @@ services:
       - .env
     environment:
       AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
-      AIRFLOW__API__HOST: airflow_webserver
-      AIRFLOW__API__PORT: "8090"
+      AIRFLOW__API__BASE_URL: ${BASE_WEBAPP_URL}/airflow
+      AIRFLOW__CORE__EXECUTION_API_SERVER_URL: ${BASE_WEBAPP_URL}/airflow/execution
       BACKEND_URL: http://bot:8080
     depends_on:
       airflow_db:

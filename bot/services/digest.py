@@ -42,12 +42,13 @@ async def create_daily_digest(session: AsyncSession) -> DailyDigest:
         or 0
     )
 
-    notes_cnt = func.count(Note.id).label("notes_cnt")
+    notes_cnt = func.count(func.distinct(Note.id)).label("notes_cnt")
     rows = await session.execute(
         select(User, notes_cnt)
-        .outerjoin(User.reminders)
+        .outerjoin(Reminder, Reminder.user_id == User.id)
+        .outerjoin(Note, Note.id == Reminder.note_id)
         .group_by(User.id)
-        .order_by(desc(notes_cnt))
+        .order_by(desc(notes_cnt), User.id)
         .limit(5)
     )
     top_users = [
