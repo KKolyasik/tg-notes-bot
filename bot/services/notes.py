@@ -10,7 +10,7 @@ from bot.models import Note, Reminder
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
 from bot.repositories.users import user_crud
-from bot.services.utils import parse_iso_aware, check_chat_id
+from bot.services.utils import parse_iso_aware
 
 
 async def save_note_from_state(
@@ -36,7 +36,7 @@ async def save_note_from_state(
             session,
         )
 
-    if not check_chat_id(user, chat_id):
+    if user.chat_id != chat_id:
         await user_crud.update_obj(user, {"chat_id": chat_id}, session)
 
     scheduled_at = parse_iso_aware(data.get("remind_at"))
@@ -81,7 +81,7 @@ async def save_note_from_state(
         await message.answer("✅ Заметка сохранена")
 
     try:
-        message.delete()
+        await message.delete()
     except TelegramBadRequest:
         pass
 

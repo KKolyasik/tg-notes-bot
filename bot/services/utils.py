@@ -5,7 +5,6 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from bot.core.config import settings
-from bot.models.user import User
 from bot.schemas.digest import DailyDigest
 
 
@@ -23,13 +22,6 @@ def make_bot() -> Bot:
         settings.BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
-
-
-async def check_chat_id(
-    user: User,
-    current_chit_id: int,
-) -> bool:
-    return user.chat_id == current_chit_id
 
 
 def format_digest_html(digest: DailyDigest) -> str:

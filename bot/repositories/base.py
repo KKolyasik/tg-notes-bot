@@ -1,5 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Type, TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +13,7 @@ ModelT = TypeVar("ModelT", bound=Base)
 
 class CRUDBase(Generic[ModelT]):
 
-    def __init__(self, model):
+    def __init__(self, model: Type[ModelT]):
         self.model = model
 
     async def get_object_by_id(
@@ -105,6 +105,7 @@ class CRUDBase(Generic[ModelT]):
                 setattr(db_obj, key, value)
 
         await session.commit()
+        await session.refresh(db_obj)
         return db_obj
 
     async def delete_obj(self, db_obj: ModelT, session: AsyncSession) -> None:

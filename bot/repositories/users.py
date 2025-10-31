@@ -5,7 +5,7 @@ from bot.models import User
 from bot.repositories.base import CRUDBase
 
 
-class CRUDUser(CRUDBase):
+class CRUDUser(CRUDBase[User]):
 
     async def get_user_by_tg_id(
         self,
