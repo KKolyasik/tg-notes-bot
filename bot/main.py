@@ -15,6 +15,7 @@ from bot.handlers.notes.view_edit import router as edit_router
 from bot.handlers.notes.search_delete import router as delete_router
 from bot.handlers.start import router as start_router
 from bot.webhooks.telegram import router as webhook_router
+from bot.api.endpoints.digest import router as digest_router
 
 WEBHOOK_PATH = "/webhook"
 WEBHOOK_SECRET = settings.WEBHOOK_SECRET
@@ -62,6 +63,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(webhook_router, prefix="")
+app.include_router(digest_router, prefix="")
 
 
 if __name__ == "__main__":

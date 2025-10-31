@@ -7,6 +7,8 @@ services:
       - .env
     volumes:
       - pg-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 5s
@@ -80,7 +82,110 @@ services:
       - postgres
       - redis
       - migrator
+  
+  airflow_db:
+    image: postgres:16
+    container_name: airflow_db_container
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${AF_DB_USER}
+      POSTGRES_PASSWORD: ${AF_DB_PASSWORD}
+      POSTGRES_DB: ${AF_DB_NAME}
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AF_DB_USER} -d ${AF_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  
+  airflow_init:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_init_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+    command: bash -lc "airflow db migrate"
+    volumes:
+      - ./notes_airflow/passwords.json:/opt/airflow/passwords.json
+  
+  airflow_scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_scheduler_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+    volumes:
+      - ./airflow/passwords.json:/opt/airflow/passwords.json
+    command: airflow scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $(hostname) || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    
+  
+  airflow_webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_webserver_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+    volumes:
+      - ./airflow/passwords.json:/opt/airflow/passwords.json
+    ports:
+      - "8090:8090"
+    command: airflow api-server
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+  
+  airflow_dag_processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_dag_processor_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+      airflow_init:
+        condition: service_completed_successfully
+    command: airflow dag-processor
+    volumes:
+      - ./airflow/passwords.json:/opt/airflow/passwords.json
 
 volumes:
   pg-data:
   redis-data:
+  airflow-db-data:

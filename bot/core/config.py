@@ -3,7 +3,10 @@ from sqlalchemy import URL
 
 
 class Settings(BaseSettings):
+    PROJECT_NAME: str
     BOT_TOKEN: str
+    BACKEND_API_KEY: str
+    TELEGRAM_ADMIN_IDS: list[int] = []
 
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
@@ -50,6 +53,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
+        extra="allow",
     )
 
 

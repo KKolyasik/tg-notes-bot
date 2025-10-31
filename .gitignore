@@ -123,3 +123,9 @@ yarn-error.log
 
 # Docker (локальные оверрайды)
 docker-compose.override.yml
+
+# Airflow
+airflow/logs/
+airflow/__pycache__/
+airflow/*.db
+airflow/passwords.json

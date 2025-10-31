@@ -10,13 +10,14 @@ from bot.models import Note, Reminder
 from bot.repositories.notes import note_crud
 from bot.repositories.reminder import reminder_crud
 from bot.repositories.users import user_crud
-from bot.services.utils import parse_iso_aware
+from bot.services.utils import parse_iso_aware, check_chat_id
 
 
 async def save_note_from_state(
     state: FSMContext,
     session: AsyncSession,
     user_id: int,
+    username: str | None,
     message: Message,
 ):
     """Функция на создание заметки."""
@@ -26,7 +27,17 @@ async def save_note_from_state(
 
     user = await user_crud.get_user_by_tg_id(user_id, session)
     if not user:
-        user = await user_crud.create_object({"tg_id": user_id}, session)
+        user = await user_crud.create_object(
+            {
+                "tg_id": user_id,
+                "username": username,
+                "chat_id": chat_id,
+            },
+            session,
+        )
+
+    if not check_chat_id(user, chat_id):
+        await user_crud.update_obj(user, {"chat_id": chat_id}, session)
 
     scheduled_at = parse_iso_aware(data.get("remind_at"))
 

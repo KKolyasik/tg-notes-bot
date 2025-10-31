@@ -3,6 +3,7 @@ volumes:
     name: tg-notes-bot_pg-data
   redis_data:
   flower_data:
+  airflow-db-data:
 
 services:
   postgres:
@@ -121,3 +122,102 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+  airflow_db:
+    image: postgres:16
+    container_name: airflow_db_container
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${AF_DB_USER}
+      POSTGRES_PASSWORD: ${AF_DB_PASSWORD}
+      POSTGRES_DB: ${AF_DB_NAME}
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${AF_DB_USER} -d $${AF_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  
+  airflow_init:
+    image: kkolyasik/airflow:latest
+    container_name: airflow_init_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+    command: bash -lc "airflow db migrate"
+    volumes:
+      - ./passwords.json:/opt/airflow/passwords.json
+  
+  airflow_scheduler:
+    image: kkolyasik/airflow:latest
+    container_name: airflow_scheduler_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+      airflow_init:
+        condition: service_started
+      airflow_dag_processor:
+        condition: service_started
+    volumes:
+      - ./passwords.json:/opt/airflow/passwords.json
+    command: airflow scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $(hostname) || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+  
+  airflow_webserver:
+    image: kkolyasik/airflow:latest
+    container_name: airflow_webserver_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+      airflow_init:
+        condition: service_started
+      airflow_dag_processor:
+        condition: service_started
+    volumes:
+      - ./passwords.json:/opt/airflow/passwords.json
+    ports:
+      - "127.0.0.1:8090:8090"
+    command: airflow api-server
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+  
+  airflow_dag_processor:
+    image: kkolyasik/airflow:latest
+    container_name: airflow_dag_processor_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+      airflow_init:
+        condition: service_completed_successfully
+    command: airflow dag-processor
+    volumes:
+      - ./passwords.json:/opt/airflow/passwords.json
