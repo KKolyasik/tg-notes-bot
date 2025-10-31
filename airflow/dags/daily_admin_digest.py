@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import pendulum
 from airflow.sdk import dag, task
 from airflow.exceptions import AirflowFailException
@@ -44,4 +42,4 @@ def daily_admin_digest():
     send_digest(build_digest())
 
 
-dag = daily_admin_digest()
+daily_admin_digest()
