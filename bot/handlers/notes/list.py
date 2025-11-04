@@ -22,6 +22,7 @@ async def get_list_notes(message: Message, session: AsyncSession):
     notes, total = await get_user_notes(
         session,
         message.from_user.id,
+        message.chat.id,
         limit=LIMIT_NOTES,
         offset=offset,
     )
