@@ -1,0 +1,191 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: pg_container
+    env_file:
+      - .env
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  web_picker:
+    build:
+      context: .
+      dockerfile: Dockerfile.picker
+    env_file: .env
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - redis
+
+  migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    command: alembic upgrade head
+    depends_on:
+      - postgres
+      - redis
+  
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - postgres
+      - redis
+      - migrator
+  
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    command: celery -A bot.celery.main.app beat -l INFO
+    depends_on:
+      - postgres
+      - redis
+      - migrator
+  
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    command: celery -A bot.celery.main.app worker -l INFO -Q reminders,maintenance --concurrency=4
+    depends_on:
+      - postgres
+      - redis
+      - migrator
+  
+  airflow_db:
+    image: postgres:16
+    container_name: airflow_db_container
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${AF_DB_USER}
+      POSTGRES_PASSWORD: ${AF_DB_PASSWORD}
+      POSTGRES_DB: ${AF_DB_NAME}
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AF_DB_USER} -d ${AF_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  
+  airflow_init:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_init_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+    command: bash -lc "airflow db migrate"
+    volumes:
+      - ./notes_airflow/passwords.json:/opt/airflow/passwords.json
+  
+  airflow_scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_scheduler_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+    volumes:
+      - ./airflow/passwords.json:/opt/airflow/passwords.json
+    command: airflow scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $(hostname) || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    
+  
+  airflow_webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_webserver_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+    volumes:
+      - ./airflow/passwords.json:/opt/airflow/passwords.json
+    ports:
+      - "8090:8090"
+    command: airflow api-server
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+  
+  airflow_dag_processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_dag_processor_container
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      BACKEND_URL: http://bot:8080
+    depends_on:
+      airflow_db:
+        condition: service_healthy
+      airflow_init:
+        condition: service_completed_successfully
+    command: airflow dag-processor
+    volumes:
+      - ./airflow/passwords.json:/opt/airflow/passwords.json
+
+volumes:
+  pg-data:
+  redis-data:
+  airflow-db-data:
