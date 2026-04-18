@@ -50,6 +50,7 @@ async def paginate_notes(
     notes, total = await get_user_notes(
         session,
         callback.from_user.id,
+        callback.message.chat.id,
         limit=LIMIT_NOTES,
         offset=offset,
     )
